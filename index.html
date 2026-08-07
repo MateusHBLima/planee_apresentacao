@@ -1,0 +1,1009 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Planee Lab IA — laboratório de engenharia e IA. Projetamos, construímos e operamos software sob medida: automações, agentes, plataformas e produtos.">
+<meta name="theme-color" content="#ffffff">
+<meta property="og:title" content="Planee Lab IA">
+<meta property="og:description" content="Sistemas que fazem o trabalho acontecer sozinho.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f%5B%5D=satoshi@900,700,500,400&display=swap">
+</head>
+<body><title>Planee Lab IA — Engenharia e inteligência aplicada</title>
+<style>
+/* ============================================================
+   PLANEE LAB IA — site de apresentação
+   Conceito: do caos à ordem. O scroll é a automação.
+   ============================================================ */
+
+:root{
+  --white:#ffffff;
+  --black:#0c0c0d;
+  --grey:#9a9a9e;
+  --off:#f1f1ee;
+
+  --bg:var(--white);
+  --fg:var(--black);
+  --muted:#6e6e75;   /* 5,1:1 sobre branco — legível de verdade */
+  --hair:#e6e6e3;
+
+  --pad:clamp(20px,5vw,72px);
+  --mono:ui-monospace,"Cascadia Code","SF Mono",Consolas,monospace;
+  --sans:"Satoshi","Satoshi Variable","Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+}
+
+body.is-dark{
+  --bg:var(--black);
+  --fg:#f4f4f2;
+  --muted:#85858c;   /* 5,4:1 sobre o preto */
+  --hair:#26262a;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+h1,h2,h3,p,figure,article{ margin:0; }
+html{ scroll-behavior:auto; }
+
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:var(--sans);
+  font-weight:500;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  transition:background-color .7s cubic-bezier(.4,0,.2,1), color .7s cubic-bezier(.4,0,.2,1);
+}
+
+::selection{ background:var(--fg); color:var(--bg); }
+
+/* ---------- utilitários ---------- */
+.mono{ font-family:var(--mono); }
+.label{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.muted{ color:var(--muted); }
+
+.scene{ position:relative; }
+.sticky{
+  position:sticky; top:0;
+  height:100vh; height:100svh;
+  overflow:hidden;
+  display:flex; flex-direction:column;
+  padding:var(--pad);
+}
+
+/* ============================================================
+   CROMO FIXO — navbar, trilho, leitor de estado
+   ============================================================ */
+.nav{
+  position:fixed; z-index:60;
+  top:0; left:0; right:0;
+  padding:calc(var(--pad)*.55) var(--pad);
+  display:flex; align-items:center; justify-content:space-between;
+  pointer-events:none;
+  mix-blend-mode:normal;
+}
+.brand{
+  display:flex; align-items:center; gap:.6em;
+  font-weight:700; font-size:14px; letter-spacing:-0.01em;
+  opacity:0; transform:translateY(-6px);
+  transition:opacity .6s ease, transform .6s ease;
+}
+.brand.show{ opacity:1; transform:none; }
+.brand svg{ width:22px; height:22px; display:block; }
+
+.readout{
+  position:fixed; z-index:60;
+  right:var(--pad); bottom:calc(var(--pad)*.7);
+  font-family:var(--mono); font-size:10px; letter-spacing:.16em;
+  color:var(--muted);
+  pointer-events:none;
+  transition:opacity .4s ease;
+}
+
+.rail{
+  position:fixed; z-index:55;
+  left:calc(var(--pad)*.42); top:0;
+  height:100vh; width:14px;
+  pointer-events:none;
+}
+.rail svg{ width:100%; height:100%; overflow:visible; }
+.rail .track{ stroke:var(--hair); stroke-width:1; }
+.rail .live{ stroke:var(--fg); stroke-width:1; }
+.rail .node{ fill:var(--bg); stroke:var(--hair); stroke-width:1; transition:none; }
+@media (max-width:900px){ .rail{ display:none; } }
+
+/* ============================================================
+   00 · CAOS → ORDEM
+   ============================================================ */
+#chaos{ height:255vh; }
+#chaos .sticky{ padding:0; }
+
+.stage{ position:absolute; inset:0; }
+
+.grid-lines{ position:absolute; inset:0; opacity:0; }
+.grid-lines i{
+  position:absolute; background:var(--hair);
+}
+.grid-lines i.v{ top:0; bottom:0; width:1px; }
+.grid-lines i.h{ left:0; right:0; height:1px; }
+
+.chip-wrap{
+  position:absolute; top:0; left:0;
+  will-change:transform,opacity;
+}
+.chip{
+  display:inline-flex; align-items:center; gap:.55em;
+  border:1px solid var(--hair);
+  background:var(--bg);
+  padding:.62em .85em;
+  font-size:clamp(10px,1.15vw,13.5px);
+  white-space:nowrap;
+  box-shadow:0 1px 22px rgba(0,0,0,.05);
+  animation:float 7s ease-in-out infinite;
+}
+.chip.m{ font-family:var(--mono); font-size:clamp(9.5px,1.05vw,12.5px); }
+.chip .badge{
+  background:var(--fg); color:var(--bg);
+  border-radius:999px; padding:.15em .55em;
+  font-family:var(--mono); font-size:.82em;
+}
+@keyframes float{
+  0%,100%{ transform:translateY(0); }
+  50%{ transform:translateY(-5px); }
+}
+body.settled .chip{ animation:none; }
+
+.hero{
+  position:absolute; inset:0;
+  padding:var(--pad);
+  display:flex; flex-direction:column; justify-content:center;
+  pointer-events:none;
+}
+.hero h1{
+  font-size:clamp(32px,7.4vw,116px);
+  font-weight:900; line-height:.97; letter-spacing:-0.042em;
+  margin:0;
+}
+.hero .ln{ display:block; overflow:hidden; padding-bottom:.1em; margin-bottom:-.1em; }
+.hero .ln i{ display:block; font-style:normal; transform:translateY(110%); will-change:transform; }
+.hero .sub{
+  margin-top:clamp(18px,2.4vw,34px);
+  max-width:44ch; font-size:clamp(14px,1.35vw,18px);
+  color:var(--muted); opacity:0;
+}
+.hint{
+  position:absolute; left:var(--pad); bottom:calc(var(--pad)*.8);
+  font-family:var(--mono); font-size:10px; letter-spacing:.2em;
+  color:var(--muted);
+}
+.hint span{ display:inline-block; animation:nudge 2.4s ease-in-out infinite; }
+@keyframes nudge{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(4px);} }
+
+/* ============================================================
+   01 · MANIFESTO QUE COMPILA
+   ============================================================ */
+#manifesto{ height:220vh; }
+#manifesto .sticky{ justify-content:center; }
+.compile-head{ opacity:.55; margin-bottom:clamp(16px,2.4vw,30px); }
+.compile{
+  font-size:clamp(26px,5.1vw,74px);
+  font-weight:900; line-height:1.05; letter-spacing:-0.035em;
+  max-width:19ch; margin:0;
+}
+.compile .ch{ transition:none; }
+.compile .ch:not(.on){
+  font-family:var(--mono);
+  font-weight:400;
+  color:var(--muted);
+  letter-spacing:-0.06em;
+}
+.beat{
+  margin-top:clamp(22px,3vw,44px);
+  max-width:46ch; font-size:clamp(14px,1.35vw,18px);
+  color:var(--muted); opacity:0; transform:translateY(14px);
+}
+
+/* ============================================================
+   02 · A FÁBRICA
+   ============================================================ */
+#factory{ height:320vh; }
+#factory .sticky{ justify-content:space-between; }
+
+.factory-grid{
+  flex:1;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:clamp(14px,4vw,60px);
+}
+.col{ display:flex; flex-direction:column; gap:clamp(8px,1.1vw,14px); }
+.col.out{ align-items:flex-end; text-align:right; }
+.unit{
+  border:1px solid var(--hair);
+  padding:.7em 1em;
+  font-size:clamp(11px,1.3vw,17px);
+  white-space:nowrap;
+  will-change:transform,opacity;
+}
+.col.in .unit{ color:var(--muted); font-family:var(--mono); font-size:clamp(10px,1.15vw,14px); }
+.col.out .unit{ font-weight:800; letter-spacing:-0.02em; opacity:0; }
+
+.core{ display:flex; flex-direction:column; align-items:center; gap:1.2em; }
+.core svg{ width:clamp(52px,7.5vw,104px); height:auto; will-change:transform; }
+.core .cap{
+  font-family:var(--mono); font-size:clamp(9px,.95vw,11.5px);
+  letter-spacing:.1em; color:var(--muted);
+  text-align:center; max-width:24ch; min-height:2.6em;
+  opacity:0; transition:opacity .35s ease;
+}
+.core .cap.show{ opacity:1; }
+
+@media (max-width:760px){
+  .factory-grid{ grid-template-columns:1fr; gap:18px; justify-items:center; }
+  .col{ flex-direction:row; flex-wrap:wrap; justify-content:center; gap:8px; }
+  .col.out{ align-items:center; text-align:center; }
+  .core svg{ width:64px; }
+}
+
+/* ============================================================
+   03 · ANATOMIA DE UM SISTEMA
+   ============================================================ */
+#anatomy{ height:230vh; }
+#anatomy .sticky{ justify-content:center; gap:clamp(20px,3vw,44px); }
+.anatomy-h{
+  font-size:clamp(22px,3.4vw,50px);
+  font-weight:900; letter-spacing:-0.035em; line-height:1.06;
+  max-width:17ch; margin:0;
+  text-wrap:balance;
+}
+.layers{ display:flex; flex-direction:column; gap:clamp(5px,.7vw,9px); max-width:1000px; width:100%; }
+.layer{
+  position:relative; overflow:hidden;
+  border:1px solid var(--hair);
+  padding:clamp(.7em,1.5vw,1.05em) clamp(1em,2vw,1.5em);
+  display:flex; align-items:baseline; justify-content:space-between; gap:1.5em;
+  opacity:0; transform:translateY(18px);
+  will-change:transform,opacity;
+}
+.layer .n{
+  font-family:var(--mono); font-size:clamp(9px,.9vw,11px);
+  letter-spacing:.14em; color:var(--muted);
+  position:absolute; left:clamp(.5em,1vw,.8em); top:.5em;
+}
+.layer .t{ font-weight:800; font-size:clamp(14px,1.9vw,26px); letter-spacing:-0.02em; padding-left:clamp(1.6em,3vw,2.4em); }
+.layer .d{ font-size:clamp(10px,1.1vw,14px); color:var(--muted); text-align:right; }
+.layer::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--fg) 8%,transparent),transparent);
+  transform:translateX(-100%); opacity:0;
+}
+.layers.live .layer::after{ animation:sweep 3.4s cubic-bezier(.45,0,.2,1) infinite; opacity:1; }
+.layers.live .layer:nth-child(1)::after{ animation-delay:0s; }
+.layers.live .layer:nth-child(2)::after{ animation-delay:.13s; }
+.layers.live .layer:nth-child(3)::after{ animation-delay:.26s; }
+.layers.live .layer:nth-child(4)::after{ animation-delay:.39s; }
+.layers.live .layer:nth-child(5)::after{ animation-delay:.52s; }
+@keyframes sweep{
+  0%{ transform:translateX(-100%); }
+  55%,100%{ transform:translateX(100%); }
+}
+.anatomy-foot{ font-size:clamp(13px,1.3vw,17px); color:var(--muted); max-width:50ch; opacity:0; }
+
+@media (max-width:700px){
+  .layer{ flex-direction:column; align-items:flex-start; gap:.15em; }
+  .layer .d{ text-align:left; padding-left:clamp(1.6em,3vw,2.4em); }
+}
+
+/* ============================================================
+   04 · A CORRIDA — única cena que roda sozinha, no tempo dela
+   ============================================================ */
+#race{ height:200vh; }
+#race .sticky{ justify-content:center; gap:clamp(16px,2.4vw,32px); }
+.race-h{
+  font-size:clamp(22px,3.4vw,50px); font-weight:900;
+  letter-spacing:-0.035em; line-height:1.06; margin:0; text-wrap:balance;
+}
+.race-grid{
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:1px; background:var(--hair); border:1px solid var(--hair);
+}
+.lane{ background:var(--bg); padding:clamp(16px,2.2vw,30px); display:flex; flex-direction:column; gap:clamp(12px,1.6vw,20px); }
+.lane-head{
+  display:flex; justify-content:space-between; align-items:baseline; gap:1em;
+  border-bottom:1px solid var(--hair); padding-bottom:.7em;
+}
+.lane-head span:first-child{ font-weight:800; font-size:clamp(13px,1.5vw,19px); letter-spacing:-0.02em; }
+.tick{ font-family:var(--mono); font-size:clamp(9px,.95vw,11px); letter-spacing:.1em; color:var(--muted); font-variant-numeric:tabular-nums; }
+
+.steps{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.34em; }
+.steps li,.auto-step{
+  display:flex; align-items:center; gap:.7em;
+  font-size:clamp(10.5px,1.15vw,14.5px);
+  color:var(--muted); line-height:1.35;
+}
+.box{
+  flex:0 0 auto; width:.72em; height:.72em;
+  border:1px solid var(--muted); display:block;
+}
+.steps li.done,.auto-step.done{ color:var(--fg); }
+.steps li.done .box,.auto-step.done .box{ background:var(--fg); border-color:var(--fg); }
+.steps li.now .box,.auto-step.now .box{ border-color:var(--fg); box-shadow:inset 0 0 0 2px var(--bg),inset 0 0 0 9px var(--fg); }
+.steps li.snag.done{ color:var(--fg); }
+.steps li.snag.done .box{ background:none; border-color:var(--fg); position:relative; }
+.steps li.snag .box::after{ content:""; position:absolute; inset:22%; background:var(--fg); opacity:0; }
+.steps li.snag.done .box::after{ opacity:1; }
+
+.auto{ display:flex; flex-direction:column; gap:.34em; flex:1; }
+.auto-step{ opacity:0; transition:opacity .3s ease; }
+.auto-step.seen{ opacity:1; }
+.lane-foot{
+  margin-top:auto; border-top:1px solid var(--hair); padding-top:.8em;
+  font-family:var(--mono); font-size:clamp(9px,.95vw,11.5px);
+  letter-spacing:.08em; color:var(--muted); font-variant-numeric:tabular-nums;
+}
+@media (max-width:700px){
+  .race-grid{ grid-template-columns:1fr; }
+  #race{ height:230vh; }
+}
+
+/* ============================================================
+   05 · MODELOS DE TRABALHO
+   ============================================================ */
+#models{ padding:clamp(90px,14vh,180px) var(--pad); }
+#models .head{ margin-bottom:clamp(28px,4vw,56px); }
+.models{
+  display:grid; grid-template-columns:repeat(2,1fr);
+  gap:1px; background:var(--hair);
+  border:1px solid var(--hair);
+}
+.model{
+  background:var(--bg);
+  padding:clamp(24px,3.4vw,52px);
+  min-height:clamp(160px,20vw,240px);
+  display:flex; flex-direction:column; justify-content:space-between; gap:1.4em;
+  opacity:0; transform:translateY(24px);
+  transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1), background-color .35s ease;
+}
+.model.in{ opacity:1; transform:none; }
+.model:hover{ background:var(--off); }
+body.is-dark .model:hover{ background:#141417; }
+.model h3{ font-size:clamp(17px,2.1vw,29px); font-weight:800; letter-spacing:-0.025em; margin:0; }
+.model p{ margin:0; color:var(--muted); font-size:clamp(12.5px,1.25vw,16px); max-width:34ch; }
+.models-foot{
+  margin-top:clamp(28px,4vw,56px);
+  font-size:clamp(16px,2.4vw,34px); font-weight:800; letter-spacing:-0.03em;
+  max-width:22ch; text-wrap:balance;
+  opacity:0; transform:translateY(20px);
+  transition:opacity .9s ease, transform .9s ease;
+}
+.models-foot.in{ opacity:1; transform:none; }
+@media (max-width:700px){ .models{ grid-template-columns:1fr; } }
+
+/* ============================================================
+   05 · ASSINATURA
+   ============================================================ */
+#sign{ height:170vh; }
+#sign .sticky{ align-items:center; justify-content:center; text-align:center; gap:clamp(14px,2vw,26px); }
+#sign svg{ width:clamp(70px,12vw,168px); height:auto; }
+#sign .name{
+  font-size:clamp(28px,5.6vw,80px); font-weight:900; letter-spacing:-0.045em; line-height:1;
+  opacity:0; transform:translateY(16px);
+}
+#sign .tag{ opacity:0; transform:translateY(12px); }
+#sign .rights{
+  position:absolute; bottom:calc(var(--pad)*.7); left:0; right:0;
+  font-family:var(--mono); font-size:10px; letter-spacing:.14em; color:var(--muted);
+  opacity:0;
+}
+
+/* ============================================================
+   MOVIMENTO REDUZIDO
+   ============================================================ */
+@media (prefers-reduced-motion:reduce){
+  body{ transition:none; }
+  .chip,.hint span{ animation:none !important; }
+  .layers.live .layer::after{ animation:none; opacity:0; }
+  /* sem as cenas roladas, as seções altas viram uma página estática limpa */
+  #chaos,#manifesto,#factory,#anatomy,#sign{ height:100vh; height:100svh; }
+  .model,.models-foot{ opacity:1 !important; transform:none !important; }
+}
+
+/* caos no mobile: menos fragmentos e coluna única, nada cortado pela borda */
+@media (max-width:700px){
+  .chip-wrap:nth-child(n+6){ display:none; }
+  .grid-lines i.v:nth-child(2),.grid-lines i.v:nth-child(3){ display:none; }
+}
+:focus-visible{ outline:2px solid var(--fg); outline-offset:3px; }
+</style>
+
+<!-- ══════════════════════ CROMO FIXO ══════════════════════ -->
+<header class="nav">
+  <div class="brand" id="brand">
+    <svg viewBox="0 0 64 44" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="8,20 22,6 22,20 40,6"/>
+      <polyline points="14,38 32,24 32,38 46,24"/>
+    </svg>
+    <span>Planee Lab IA</span>
+  </div>
+</header>
+
+<div class="rail" aria-hidden="true">
+  <svg viewBox="0 0 14 1000" preserveAspectRatio="none">
+    <line class="track" x1="7" y1="90" x2="7" y2="910"/>
+    <line class="live" id="railLive" x1="7" y1="90" x2="7" y2="910"/>
+    <circle class="node" cx="7" cy="90" r="3"/>
+    <circle class="node" cx="7" cy="254" r="3"/>
+    <circle class="node" cx="7" cy="418" r="3"/>
+    <circle class="node" cx="7" cy="582" r="3"/>
+    <circle class="node" cx="7" cy="746" r="3"/>
+    <circle class="node" cx="7" cy="910" r="3"/>
+  </svg>
+</div>
+
+<div class="readout" id="readout">01 · CAOS</div>
+
+<main>
+<!-- ══════════════════════ 00 · CAOS → ORDEM ══════════════════════ -->
+<section class="scene" id="chaos">
+  <div class="sticky">
+    <div class="stage">
+      <div class="grid-lines" id="gridLines" aria-hidden="true"></div>
+      <div id="chips" aria-hidden="true"></div>
+    </div>
+
+    <div class="hero">
+      <h1>
+        <span class="ln"><i>Sistemas que fazem</i></span>
+        <span class="ln"><i>o trabalho acontecer</i></span>
+        <span class="ln"><i>sozinho.</i></span>
+      </h1>
+      <p class="sub" id="heroSub">Laboratório de engenharia e IA. Projetamos, construímos e operamos software sob medida — automações, agentes, plataformas e produtos.</p>
+    </div>
+
+    <div class="hint" id="hint">ROLE <span>↓</span></div>
+  </div>
+</section>
+
+<!-- ══════════════════════ 01 · MANIFESTO ══════════════════════ -->
+<section class="scene" id="manifesto">
+  <div class="sticky">
+    <div class="label compile-head" id="compileHead">&gt; processo.detectar(repeticao)</div>
+    <p class="compile" id="compile" data-text="Todo processo que alguém repete todo dia é um sistema esperando para ser escrito."></p>
+    <p class="beat" id="beat">Não construímos para substituir pessoas. Construímos para o trabalho parar de esperar por elas.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════ 02 · A FÁBRICA ══════════════════════ -->
+<section class="scene" id="factory">
+  <div class="sticky">
+    <div class="label">O que construímos</div>
+
+    <div class="factory-grid">
+      <div class="col in" id="colIn">
+        <div class="unit">dados soltos</div>
+        <div class="unit">tarefas manuais</div>
+        <div class="unit">planilhas</div>
+        <div class="unit">mensagens</div>
+      </div>
+
+      <div class="core">
+        <svg id="coreMark" viewBox="0 0 64 44" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="8,20 22,6 22,20 40,6"/>
+          <polyline points="14,38 32,24 32,38 46,24"/>
+        </svg>
+        <div class="cap" id="coreCap"></div>
+      </div>
+
+      <div class="col out" id="colOut">
+        <div class="unit">Automações</div>
+        <div class="unit">Agentes de IA</div>
+        <div class="unit">Plataformas</div>
+        <div class="unit">Produtos SaaS</div>
+      </div>
+    </div>
+
+    <div class="label" style="text-align:right">Planee Lab IA</div>
+  </div>
+</section>
+
+<!-- ══════════════════════ 03 · ANATOMIA ══════════════════════ -->
+<section class="scene" id="anatomy">
+  <div class="sticky">
+    <h2 class="anatomy-h">Todo sistema que entregamos tem as mesmas cinco camadas.</h2>
+
+    <div class="layers" id="layers">
+      <div class="layer"><span class="n">01</span><span class="t">Entrada</span><span class="d">dados, arquivos, mensagens</span></div>
+      <div class="layer"><span class="n">02</span><span class="t">Regras</span><span class="d">o que pode e o que não pode</span></div>
+      <div class="layer"><span class="n">03</span><span class="t">Inteligência</span><span class="d">ler, decidir, gerar</span></div>
+      <div class="layer"><span class="n">04</span><span class="t">Execução</span><span class="d">a ação no mundo real</span></div>
+      <div class="layer"><span class="n">05</span><span class="t">Observação</span><span class="d">log, métrica, ajuste</span></div>
+    </div>
+
+    <p class="anatomy-foot" id="anatomyFoot">O que muda de projeto para projeto é o que passa por elas.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════ 04 · A CORRIDA (roda sozinha) ══════════════════════ -->
+<section class="scene" id="race">
+  <div class="sticky">
+    <div class="label">Demonstração · fechar o relatório do mês</div>
+    <h2 class="race-h">A mesma tarefa, dois caminhos.</h2>
+
+    <div class="race-grid">
+      <div class="lane">
+        <div class="lane-head"><span>Manual</span><span class="tick" id="tickManual">parado</span></div>
+        <ol class="steps" id="stepsManual">
+          <li><i class="box"></i><span>abrir a planilha de vendas</span></li>
+          <li><i class="box"></i><span>filtrar o mês corrente</span></li>
+          <li><i class="box"></i><span>remover duplicados</span></li>
+          <li><i class="box"></i><span>copiar para o modelo</span></li>
+          <li><i class="box"></i><span>conferir os totais</span></li>
+          <li class="snag"><i class="box"></i><span>divergência na linha 812 — refazer</span></li>
+          <li><i class="box"></i><span>recalcular</span></li>
+          <li><i class="box"></i><span>gerar o PDF</span></li>
+          <li><i class="box"></i><span>escrever o e-mail</span></li>
+          <li><i class="box"></i><span>anexar e revisar</span></li>
+          <li><i class="box"></i><span>enviar para 9 pessoas</span></li>
+          <li><i class="box"></i><span>arquivar a cópia</span></li>
+        </ol>
+        <div class="lane-foot" id="footManual">à espera</div>
+      </div>
+
+      <div class="lane">
+        <div class="lane-head"><span>Com a Planee</span><span class="tick" id="tickAuto">em espera</span></div>
+        <div class="auto">
+          <div class="auto-step" id="autoTrigger"><i class="box"></i><span>gatilho — todo dia 1, às 08:00</span></div>
+          <div class="auto-step" id="autoRun"><i class="box"></i><span>executar()</span></div>
+          <div class="auto-step" id="autoDone"><i class="box"></i><span>enviado e arquivado</span></div>
+        </div>
+        <div class="lane-foot" id="footAuto">à espera</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ 05 · MODELOS ══════════════════════ -->
+<section id="models">
+  <div class="label head">Como nos envolvemos</div>
+  <div class="models">
+    <article class="model"><h3>Projeto sob medida</h3><p>Escopo definido, construção e operação.</p></article>
+    <article class="model"><h3>Produto em parceria</h3><p>Construímos o software; o retorno é dividido.</p></article>
+    <article class="model"><h3>Sistema interno</h3><p>Ferramenta própria para operar melhor que o mercado.</p></article>
+    <article class="model"><h3>Produto do laboratório</h3><p>Ideias que viram produto aqui dentro.</p></article>
+  </div>
+  <p class="models-foot" id="modelsFoot">A forma do negócio muda. O que construímos, não.</p>
+</section>
+
+<!-- ══════════════════════ 05 · ASSINATURA ══════════════════════ -->
+<section class="scene" id="sign">
+  <div class="sticky">
+    <svg id="signMark" viewBox="0 0 64 44" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="8,20 22,6 22,20 40,6"/>
+      <polyline points="14,38 32,24 32,38 46,24"/>
+    </svg>
+    <div class="name" id="signName">Planee Lab IA</div>
+    <div class="label tag" id="signTag">Engenharia e inteligência aplicada</div>
+    <div class="rights" id="signRights">© 2026 PLANEE LAB IA</div>
+  </div>
+</section>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  const $  = (s, c = document) => c.querySelector(s);
+  const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
+  const clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v;
+  const lerp  = (a, b, t) => a + (b - a) * t;
+  const ease  = t => 1 - Math.pow(1 - t, 3);
+  const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* a página é uma narrativa: recarregar no meio de uma cena não faz sentido.
+     Todo visitante começa no caos. */
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+
+  /* progresso 0→1 de uma seção alta com filho sticky */
+  const sceneProgress = el => {
+    const r = el.getBoundingClientRect();
+    const span = r.height - window.innerHeight;
+    if (span <= 0) return clamp(1 - r.bottom / (window.innerHeight || 1));
+    return clamp(-r.top / span);
+  };
+
+  /* ───────────────── 00 · caos ───────────────── */
+  const CHIPS = [
+    { t: "relatorio_final_v7_REVISADO.xlsx", m: 1, sx:.05, sy:.11, r:-4,   gx:.06, gy:.15 },
+    { t: "Aguardando aprovação", badge: "27", sx:.47, sy:.06, r: 3,        gx:.40, gy:.15 },
+    { t: "copiar → colar → conferir", m: 1, sx:.13, sy:.31, r: 2,          gx:.06, gy:.35 },
+    { t: "3.412 linhas · 1 pessoa", sx:.56, sy:.29, r:-2.5,                gx:.40, gy:.35 },
+    { t: "reenviar planilha (3ª vez)", m: 1, sx:.06, sy:.53, r: 3.5,       gx:.06, gy:.55 },
+    { t: "23h47 — ainda conferindo", sx:.45, sy:.51, r:-1.5,               gx:.40, gy:.55 },
+    { t: "“isso só o João sabe fazer”", sx:.19, sy:.72, r: 2,              gx:.06, gy:.75 },
+    { t: "Ctrl+C · Ctrl+V", m: 1, sx:.60, sy:.74, r:-3,                    gx:.40, gy:.75 }
+  ];
+
+  const chipHost = $("#chips");
+  const chips = CHIPS.map((c, i) => {
+    const wrap = document.createElement("div");
+    wrap.className = "chip-wrap";
+    const el = document.createElement("div");
+    el.className = "chip" + (c.m ? " m" : "");
+    el.style.animationDelay = (i * .55).toFixed(2) + "s";
+    el.innerHTML = c.badge
+      ? c.t + ' <span class="badge">' + c.badge + "</span>"
+      : c.t;
+    wrap.appendChild(el);
+    chipHost.appendChild(wrap);
+    return Object.assign({}, c, { el: wrap });
+  });
+
+  /* grade que emerge do caos */
+  const gridHost = $("#gridLines");
+  [.06, .40, .74].forEach(x => {
+    const i = document.createElement("i");
+    i.className = "v"; i.style.left = (x * 100) + "%";
+    gridHost.appendChild(i);
+  });
+  [.15, .35, .55, .75].forEach(y => {
+    const i = document.createElement("i");
+    i.className = "h"; i.style.top = (y * 100) + "%";
+    gridHost.appendChild(i);
+  });
+
+  const chaosEl  = $("#chaos");
+  const heroLns  = $$("#chaos .ln i");
+  const heroSub  = $("#heroSub");
+  const hintEl   = $("#hint");
+  const brandEl  = $("#brand");
+
+  let W = 0, H = 0, MOBILE = false, TRAVEL_IN = 260, TRAVEL_OUT = 260;
+  const measure = () => {
+    const s = $("#chaos .sticky");
+    W = s.clientWidth; H = s.clientHeight;
+    MOBILE = W < 760;
+
+    /* distâncias reais entre as colunas e o núcleo da fábrica */
+    const mid = el => { const r = el.getBoundingClientRect(); return r.left + r.width / 2; };
+    const core = mid($("#coreMark"));
+    TRAVEL_IN  = MOBILE ? 0 : Math.max(80, core - mid($("#colIn")));
+    TRAVEL_OUT = MOBILE ? 0 : Math.max(80, mid($("#colOut")) - core);
+  };
+
+  const renderChaos = p => {
+    chips.forEach((c, i) => {
+      const t  = ease(clamp((p - i * .018) / .46));
+      /* no mobile o caos se resolve numa coluna única — nada é cortado pela borda */
+      const sx = MOBILE ? c.sx * .30 : c.sx;
+      const gx = MOBILE ? .05 : c.gx;
+      const gy = MOBILE ? .15 + i * .15 : c.gy;
+      const x  = lerp(sx, gx, t) * W;
+      const y  = lerp(c.sy, gy, t) * H;
+      const rt = lerp(c.r, 0, t);
+      c.el.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px) rotate(" + rt.toFixed(2) + "deg)";
+      c.el.style.opacity = (1 - clamp((p - .40) / .20)).toFixed(3);
+    });
+
+    const gridIn  = clamp((p - .26) / .18);
+    const gridOut = clamp((p - .62) / .26);
+    gridHost.style.opacity = (gridIn * (1 - gridOut * .8)).toFixed(3);
+
+    heroLns.forEach((ln, i) => {
+      const t = ease(clamp((p - .50 - i * .045) / .28));
+      ln.style.transform = "translateY(" + ((1 - t) * 110).toFixed(2) + "%)";
+    });
+
+    heroSub.style.opacity = clamp((p - .76) / .18).toFixed(3);
+    hintEl.style.opacity  = (1 - clamp(p / .10)).toFixed(3);
+    brandEl.classList.toggle("show", p > .52);
+    document.body.classList.toggle("settled", p > .5);
+  };
+
+  /* ───────────────── 01 · manifesto ───────────────── */
+  const compileEl = $("#compile");
+  const GLYPHS = "▚▞░▒█/\\|<>=+-*#$%{}[]()01";
+  const source  = compileEl.dataset.text;
+  const charSpans = Array.from(source).map(ch => {
+    const s = document.createElement("span");
+    s.className = "ch";
+    s.dataset.c = ch;
+    s.dataset.r = ch === " " ? " " : GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+    s.textContent = s.dataset.r;
+    s._on = false;
+    compileEl.appendChild(s);
+    return s;
+  });
+
+  const manifestoEl = $("#manifesto");
+  const beatEl = $("#beat");
+  const headEl = $("#compileHead");
+
+  const renderManifesto = p => {
+    const n = charSpans.length;
+    charSpans.forEach((s, i) => {
+      const on = p > .10 + (i / n) * .58;
+      if (on !== s._on) {
+        s._on = on;
+        s.textContent = on ? s.dataset.c : s.dataset.r;
+        s.classList.toggle("on", on);
+      }
+    });
+    headEl.style.opacity = (0.55 * (1 - clamp((p - .62) / .2))).toFixed(3);
+    const b = clamp((p - .74) / .2);
+    beatEl.style.opacity = b.toFixed(3);
+    beatEl.style.transform = "translateY(" + ((1 - ease(b)) * 14).toFixed(1) + "px)";
+  };
+
+  /* ───────────────── 02 · fábrica ───────────────── */
+  const factoryEl = $("#factory");
+  const inUnits   = $$("#colIn .unit");
+  const outUnits  = $$("#colOut .unit");
+  const coreMark  = $("#coreMark");
+  const coreCap   = $("#coreCap");
+  const CAPS = [
+    "fluxos que conectam sistemas que não se falam",
+    "software que lê, decide e executa nas suas regras",
+    "interfaces onde a operação inteira acontece",
+    "do protótipo ao produto em produção"
+  ];
+  let capIdx = -1;
+
+  const renderFactory = p => {
+    let pulse = 0, active = -1;
+
+    inUnits.forEach((el, i) => {
+      const l = clamp((p - .06 - i * .19) / .34);
+      const a = clamp(l / .55);
+      el.style.transform = "translateX(" + (ease(a) * TRAVEL_IN).toFixed(1) + "px)";
+      el.style.opacity = (1 - clamp((a - .5) / .5)).toFixed(3);
+
+      const b = clamp((l - .45) / .55);
+      const out = outUnits[i];
+      out.style.transform = "translateX(" + ((1 - ease(b)) * -TRAVEL_OUT).toFixed(1) + "px)";
+      out.style.opacity = clamp(b / .45).toFixed(3);
+
+      const bell = Math.exp(-Math.pow((l - .5) * 5, 2));
+      if (bell > pulse) { pulse = bell; active = i; }
+    });
+
+    coreMark.style.transform = "scale(" + (1 + pulse * .10).toFixed(3) + ")";
+    const show = pulse > .35 && p > .04 && p < .96;
+    if (show && active !== capIdx) { capIdx = active; coreCap.textContent = CAPS[active]; }
+    coreCap.classList.toggle("show", show);
+  };
+
+  /* ───────────────── 03 · anatomia ───────────────── */
+  const anatomyEl = $("#anatomy");
+  const layersEl  = $("#layers");
+  const layerEls  = $$("#layers .layer");
+  const anatomyFoot = $("#anatomyFoot");
+
+  const renderAnatomy = p => {
+    layerEls.forEach((el, i) => {
+      const t = ease(clamp((p - .10 - i * .09) / .26));
+      el.style.opacity = t.toFixed(3);
+      el.style.transform = "translateY(" + ((1 - t) * 18).toFixed(1) + "px)";
+    });
+    layersEl.classList.toggle("live", p > .66 && !REDUCED);
+    anatomyFoot.style.opacity = clamp((p - .72) / .18).toFixed(3);
+  };
+
+  /* ───────────────── 04 · a corrida ─────────────────
+     Única cena movida pelo tempo, não pelo scroll: a seção sobre
+     coisas que rodam sozinhas é a única que roda sozinha.        */
+  const raceEl   = $("#race");
+  const stepEls  = $$("#stepsManual li");
+  const autoEls  = [$("#autoTrigger"), $("#autoRun"), $("#autoDone")];
+  const tickMan  = $("#tickManual");
+  const tickAuto = $("#tickAuto");
+  const footMan  = $("#footManual");
+  const footAuto = $("#footAuto");
+
+  const DUR = [820, 820, 820, 820, 820, 1900, 820, 820, 820, 820, 820, 820];
+  const TIMES = [];
+  DUR.reduce((acc, d) => { const t = acc + d; TIMES.push(t); return t; }, 1100);
+  const AUTO_T = [400, 1000, 1600];
+  const CYCLE = TIMES[TIMES.length - 1] + 2800;
+  const N = stepEls.length;
+
+  let raceOn = false, raceT0 = 0, lastDone = -1, lastAuto = -1, lastFootA = "", lastFootM = "";
+
+  const renderRace = ms => {
+    const t = ms % CYCLE;
+    const done  = TIMES.filter(x => t >= x).length;
+    const aDone = AUTO_T.filter(x => t >= x).length;
+
+    if (done !== lastDone) {
+      lastDone = done;
+      stepEls.forEach((el, i) => {
+        el.classList.toggle("done", i < done);
+        el.classList.toggle("now",  i === done);
+      });
+      tickMan.textContent = done >= N ? N + " de " + N : (done + 1) + " de " + N;
+      const fm = done >= N ? N + " passos · 1 pessoa" : "em andamento";
+      if (fm !== lastFootM) { lastFootM = fm; footMan.textContent = fm; }
+    }
+
+    if (aDone !== lastAuto) {
+      lastAuto = aDone;
+      autoEls.forEach((el, i) => {
+        el.classList.toggle("seen", i < aDone);
+        el.classList.toggle("done", i < aDone);
+        el.classList.toggle("now",  i === aDone && aDone < autoEls.length);
+      });
+      tickAuto.textContent = aDone >= autoEls.length ? "1 de 1" : "iniciando";
+    }
+
+    /* a espera é medida nos passos do outro lado — nenhum tempo inventado */
+    const fa = aDone < autoEls.length ? "aguardando o gatilho"
+      : done >= N ? "1 execução · 0 pessoas"
+      : "ocioso há " + done + (done === 1 ? " passo" : " passos") + " do outro lado";
+    if (fa !== lastFootA) { lastFootA = fa; footAuto.textContent = fa; }
+  };
+
+  new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { if (!raceOn) { raceOn = true; raceT0 = performance.now(); } }
+    else raceOn = false;
+  }), { threshold: .3 }).observe(raceEl);
+
+  /* ───────────────── 05 · assinatura ───────────────── */
+  const signEl   = $("#sign");
+  const signMark = $("#signMark");
+  const signName = $("#signName");
+  const signTag  = $("#signTag");
+  const signRts  = $("#signRights");
+  const marks    = $$("#signMark polyline");
+  marks.forEach(m => {
+    const len = m.getTotalLength();
+    m.style.strokeDasharray = len;
+    m.style.strokeDashoffset = len;
+    m._len = len;
+  });
+
+  const renderSign = p => {
+    marks.forEach((m, i) => {
+      const t = ease(clamp((p - .10 - i * .14) / .40));
+      m.style.strokeDashoffset = (m._len * (1 - t)).toFixed(2);
+    });
+    const a = clamp((p - .52) / .22);
+    signName.style.opacity = a.toFixed(3);
+    signName.style.transform = "translateY(" + ((1 - ease(a)) * 16).toFixed(1) + "px)";
+    const b = clamp((p - .66) / .2);
+    signTag.style.opacity = b.toFixed(3);
+    signTag.style.transform = "translateY(" + ((1 - ease(b)) * 12).toFixed(1) + "px)";
+    signRts.style.opacity = clamp((p - .82) / .15).toFixed(3);
+  };
+
+  /* ───────────────── cromo: trilho + leitor ───────────────── */
+  const railLive = $("#railLive");
+  const RAIL_LEN = 820;
+  railLive.style.strokeDasharray = RAIL_LEN;
+  const readout = $("#readout");
+  const STATES = [
+    [chaosEl,     "01 · CAOS"],
+    [manifestoEl, "03 · COMPILANDO"],
+    [factoryEl,   "05 · PROCESSANDO"],
+    [anatomyEl,   "06 · SISTEMA ATIVO"],
+    [raceEl,      "07 · EXECUTANDO"],
+    [$("#models"),"08 · ABERTO"],
+    [signEl,      "09 · PLANEE"]
+  ];
+  let lastState = "";
+
+  const renderChrome = () => {
+    const doc = document.documentElement;
+    const total = doc.scrollHeight - window.innerHeight;
+    const p = total > 0 ? clamp(window.scrollY / total) : 0;
+    railLive.style.strokeDashoffset = (RAIL_LEN * (1 - p)).toFixed(1);
+
+    const mid = window.innerHeight / 2;
+    let label = STATES[0][1];
+    for (const [el, txt] of STATES) {
+      const r = el.getBoundingClientRect();
+      if (r.top <= mid && r.bottom >= mid) { label = txt; break; }
+    }
+    // durante o caos, o leitor acompanha a organização
+    if (label === "01 · CAOS") {
+      const cp = sceneProgress(chaosEl);
+      label = cp > .62 ? "02 · ORDEM" : cp > .22 ? "02 · ALINHANDO" : "01 · CAOS";
+    }
+    if (label !== lastState) { lastState = label; readout.textContent = label; }
+  };
+
+  /* ───────────────── inversão de fundo ───────────────── */
+  const darkZone = [factoryEl, anatomyEl, raceEl];
+  const updateTheme = () => {
+    const mid = window.innerHeight / 2;
+    const dark = darkZone.some(el => {
+      const r = el.getBoundingClientRect();
+      return r.top <= mid && r.bottom >= mid;
+    });
+    document.body.classList.toggle("is-dark", dark);
+  };
+
+  /* ───────────────── revelações simples ───────────────── */
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+  }, { threshold: .25 });
+  $$("#models .model, #modelsFoot").forEach((el, i) => {
+    el.style.transitionDelay = (i * .08).toFixed(2) + "s";
+    io.observe(el);
+  });
+
+  /* ───────────────── loop ───────────────── */
+  const smooth = { chaos: 0, man: 0, fac: 0, ana: 0, sig: 0 };
+  const targets = () => ({
+    chaos: sceneProgress(chaosEl),
+    man:   sceneProgress(manifestoEl),
+    fac:   sceneProgress(factoryEl),
+    ana:   sceneProgress(anatomyEl),
+    sig:   sceneProgress(signEl)
+  });
+  const near = (el, m = 1.2) => {
+    const r = el.getBoundingClientRect();
+    const h = window.innerHeight * m;
+    return r.bottom > -h && r.top < h;
+  };
+
+  /* desenha o estado atual — não depende de rAF, então a página
+     nunca aparece quebrada antes do primeiro frame */
+  const paint = () => {
+    if (near(chaosEl))     renderChaos(smooth.chaos);
+    if (near(manifestoEl)) renderManifesto(smooth.man);
+    if (near(factoryEl))   renderFactory(smooth.fac);
+    if (near(anatomyEl))   renderAnatomy(smooth.ana);
+    if (near(signEl))      renderSign(smooth.sig);
+    renderChrome();
+    updateTheme();
+  };
+
+  let lastFrameAt = 0;
+  const frame = ts => {
+    lastFrameAt = ts || performance.now();
+    const t = targets();
+    const k = REDUCED ? 1 : .16;
+    for (const key in smooth) smooth[key] = lerp(smooth[key], t[key], k);
+    paint();
+    if (raceOn) renderRace(lastFrameAt - raceT0);
+    requestAnimationFrame(frame);
+  };
+
+  let running = false;
+  const boot = () => {
+    measure();
+    if (REDUCED) {
+      /* sem movimento: cada cena fica no estado final e o loop nunca roda */
+      for (const key in smooth) smooth[key] = 1;
+      renderChaos(1); renderManifesto(1); renderFactory(1);
+      renderAnatomy(1); renderSign(1);
+      renderRace(TIMES[TIMES.length - 1] + 500);   /* corrida já concluída, sem loop */
+      renderChrome(); updateTheme();
+      return;
+    }
+    Object.assign(smooth, targets());          /* nunca “corre atrás” do scroll inicial */
+    paint();
+    if (!running) { running = true; requestAnimationFrame(frame); }
+  };
+
+  boot();                                      /* o script está no fim do body: tudo já existe */
+  window.addEventListener("load", boot);       /* remede depois que a fonte carrega */
+  window.addEventListener("pageshow", boot);   /* volta do cache do navegador */
+  window.addEventListener("resize", boot, { passive: true });
+  window.addEventListener("orientationchange", boot);
+  /* se o rAF estiver suspenso, o scroll ainda mantém a página coerente */
+  window.addEventListener("scroll", () => {
+    if (performance.now() - lastFrameAt > 250) { Object.assign(smooth, targets()); paint(); }
+  }, { passive: true });
+})();
+</script>
+
+</body>
+</html>
