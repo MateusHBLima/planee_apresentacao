@@ -3,1007 +3,590 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Planee Lab IA — laboratório de engenharia e IA. Projetamos, construímos e operamos software sob medida: automações, agentes, plataformas e produtos.">
-<meta name="theme-color" content="#ffffff">
-<meta property="og:title" content="Planee Lab IA">
-<meta property="og:description" content="Sistemas que fazem o trabalho acontecer sozinho.">
-<meta property="og:type" content="website">
+<meta name="description" content="Planee Lab IA — laboratório de software e IA. Sistemas sob medida para operações que hoje dependem de execução manual.">
+<meta name="theme-color" content="#08080a">
+<meta property="og:title" content="Planee Lab IA — Laboratório de Software e IA">
+<meta property="og:description" content="Sistemas sob medida para operações que hoje dependem de execução manual.">
 <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
 <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f%5B%5D=satoshi@900,700,500,400&display=swap">
 </head>
-<body><title>Planee Lab IA — Engenharia e inteligência aplicada</title>
+<body><title>Planee Lab IA — Laboratório de Software e IA</title>
 <style>
 /* ============================================================
-   PLANEE LAB IA — site de apresentação
-   Conceito: do caos à ordem. O scroll é a automação.
+   PLANEE LAB IA — apresentação institucional
+   Preto sobre branco, como a marca.
+   Texto revela na entrada. Estrutura é amarrada ao scroll:
+   avança e retrocede com o dedo.
    ============================================================ */
-
-:root{
-  --white:#ffffff;
-  --black:#0c0c0d;
-  --grey:#9a9a9e;
-  --off:#f1f1ee;
-
-  --bg:var(--white);
-  --fg:var(--black);
-  --muted:#6e6e75;   /* 5,1:1 sobre branco — legível de verdade */
-  --hair:#e6e6e3;
-
-  --pad:clamp(20px,5vw,72px);
-  --mono:ui-monospace,"Cascadia Code","SF Mono",Consolas,monospace;
-  --sans:"Satoshi","Satoshi Variable","Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
-}
-
-body.is-dark{
-  --bg:var(--black);
-  --fg:#f4f4f2;
-  --muted:#85858c;   /* 5,4:1 sobre o preto */
-  --hair:#26262a;
-}
-
 *,*::before,*::after{ box-sizing:border-box; }
 html,body{ margin:0; padding:0; }
-h1,h2,h3,p,figure,article{ margin:0; }
-html{ scroll-behavior:auto; }
+h1,h2,h3,h4,p,ul,li{ margin:0; padding:0; }
+li{ list-style:none; }
 
+:root{
+  --ground:#08080a;
+  --ink:#f2f2f0;
+  --dim:#8e8e96;          /* 5,9:1 sobre o preto */
+  --hair:#26262b;
+  --sink:#101014;
+  /* O dourado só marca estado ativo: progresso, linha que avança,
+     marcador aceso, espinha e fonte do dado. Nunca texto corrido —
+     sobre branco ficaria em 2,4:1, e é por isso que a base é preta. */
+  --gold:#c9a227;         /* 8,3:1 sobre o preto */
+  --sans:"Satoshi","Satoshi Variable","Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,sans-serif;
+  --mono:ui-monospace,"Cascadia Code",Consolas,monospace;
+  --pad:clamp(22px,6vw,96px);
+  --curve:cubic-bezier(.22,.68,.28,1);
+}
 body{
-  background:var(--bg);
-  color:var(--fg);
-  font-family:var(--sans);
-  font-weight:500;
-  line-height:1.5;
-  -webkit-font-smoothing:antialiased;
-  text-rendering:optimizeLegibility;
-  transition:background-color .7s cubic-bezier(.4,0,.2,1), color .7s cubic-bezier(.4,0,.2,1);
+  background:var(--ground); color:var(--ink);
+  font-family:var(--sans); line-height:1.55; -webkit-font-smoothing:antialiased;
 }
+.wrap{ max-width:1140px; margin:0 auto; padding:0 var(--pad); }
+:focus-visible{ outline:2px solid var(--ink); outline-offset:4px; }
 
-::selection{ background:var(--fg); color:var(--bg); }
-
-/* ---------- utilitários ---------- */
-.mono{ font-family:var(--mono); }
-.label{
-  font-family:var(--mono);
-  font-size:11px;
-  letter-spacing:.18em;
-  text-transform:uppercase;
-  color:var(--muted);
+/* ---------- cromo fixo ---------- */
+.progress{
+  position:fixed; top:0; left:0; right:0; height:2px; z-index:80;
+  background:var(--gold); transform:scaleX(0); transform-origin:0 50%;
 }
-.muted{ color:var(--muted); }
-
-.scene{ position:relative; }
-.sticky{
-  position:sticky; top:0;
-  height:100vh; height:100svh;
-  overflow:hidden;
-  display:flex; flex-direction:column;
-  padding:var(--pad);
-}
-
-/* ============================================================
-   CROMO FIXO — navbar, trilho, leitor de estado
-   ============================================================ */
-.nav{
-  position:fixed; z-index:60;
-  top:0; left:0; right:0;
-  padding:calc(var(--pad)*.55) var(--pad);
-  display:flex; align-items:center; justify-content:space-between;
-  pointer-events:none;
-  mix-blend-mode:normal;
-}
-.brand{
+.topbar{
+  position:fixed; z-index:70; top:0; left:0; right:0;
+  padding:clamp(14px,1.6vw,20px) var(--pad);
   display:flex; align-items:center; gap:.6em;
-  font-weight:700; font-size:14px; letter-spacing:-0.01em;
-  opacity:0; transform:translateY(-6px);
-  transition:opacity .6s ease, transform .6s ease;
-}
-.brand.show{ opacity:1; transform:none; }
-.brand svg{ width:22px; height:22px; display:block; }
-
-.readout{
-  position:fixed; z-index:60;
-  right:var(--pad); bottom:calc(var(--pad)*.7);
-  font-family:var(--mono); font-size:10px; letter-spacing:.16em;
-  color:var(--muted);
-  pointer-events:none;
-  transition:opacity .4s ease;
-}
-
-.rail{
-  position:fixed; z-index:55;
-  left:calc(var(--pad)*.42); top:0;
-  height:100vh; width:14px;
+  font-weight:700; font-size:13px; letter-spacing:-0.01em;
+  background:linear-gradient(180deg,rgba(8,8,10,.95),rgba(8,8,10,0));
+  opacity:0; transform:translateY(-8px);
+  transition:opacity .45s var(--curve), transform .45s var(--curve);
   pointer-events:none;
 }
-.rail svg{ width:100%; height:100%; overflow:visible; }
-.rail .track{ stroke:var(--hair); stroke-width:1; }
-.rail .live{ stroke:var(--fg); stroke-width:1; }
-.rail .node{ fill:var(--bg); stroke:var(--hair); stroke-width:1; transition:none; }
-@media (max-width:900px){ .rail{ display:none; } }
+.topbar.on{ opacity:1; transform:none; }
+/* a marca é mais alta que larga (100 × 125,84): fixa-se a altura */
+.topbar svg{ height:19px; width:auto; display:block; }
 
-/* ============================================================
-   00 · CAOS → ORDEM
-   ============================================================ */
-#chaos{ height:255vh; }
-#chaos .sticky{ padding:0; }
-
-.stage{ position:absolute; inset:0; }
-
-.grid-lines{ position:absolute; inset:0; opacity:0; }
-.grid-lines i{
-  position:absolute; background:var(--hair);
-}
-.grid-lines i.v{ top:0; bottom:0; width:1px; }
-.grid-lines i.h{ left:0; right:0; height:1px; }
-
-.chip-wrap{
-  position:absolute; top:0; left:0;
-  will-change:transform,opacity;
-}
-.chip{
-  display:inline-flex; align-items:center; gap:.55em;
-  border:1px solid var(--hair);
-  background:var(--bg);
-  padding:.62em .85em;
-  font-size:clamp(10px,1.15vw,13.5px);
-  white-space:nowrap;
-  box-shadow:0 1px 22px rgba(0,0,0,.05);
-  animation:float 7s ease-in-out infinite;
-}
-.chip.m{ font-family:var(--mono); font-size:clamp(9.5px,1.05vw,12.5px); }
-.chip .badge{
-  background:var(--fg); color:var(--bg);
-  border-radius:999px; padding:.15em .55em;
-  font-family:var(--mono); font-size:.82em;
-}
-@keyframes float{
-  0%,100%{ transform:translateY(0); }
-  50%{ transform:translateY(-5px); }
-}
-body.settled .chip{ animation:none; }
-
-.hero{
-  position:absolute; inset:0;
-  padding:var(--pad);
-  display:flex; flex-direction:column; justify-content:center;
-  pointer-events:none;
-}
-.hero h1{
-  font-size:clamp(32px,7.4vw,116px);
-  font-weight:900; line-height:.97; letter-spacing:-0.042em;
-  margin:0;
-}
-.hero .ln{ display:block; overflow:hidden; padding-bottom:.1em; margin-bottom:-.1em; }
-.hero .ln i{ display:block; font-style:normal; transform:translateY(110%); will-change:transform; }
-.hero .sub{
-  margin-top:clamp(18px,2.4vw,34px);
-  max-width:44ch; font-size:clamp(14px,1.35vw,18px);
-  color:var(--muted); opacity:0;
-}
-.hint{
-  position:absolute; left:var(--pad); bottom:calc(var(--pad)*.8);
-  font-family:var(--mono); font-size:10px; letter-spacing:.2em;
-  color:var(--muted);
-}
-.hint span{ display:inline-block; animation:nudge 2.4s ease-in-out infinite; }
-@keyframes nudge{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(4px);} }
-
-/* ============================================================
-   01 · MANIFESTO QUE COMPILA
-   ============================================================ */
-#manifesto{ height:220vh; }
-#manifesto .sticky{ justify-content:center; }
-.compile-head{ opacity:.55; margin-bottom:clamp(16px,2.4vw,30px); }
-.compile{
-  font-size:clamp(26px,5.1vw,74px);
-  font-weight:900; line-height:1.05; letter-spacing:-0.035em;
-  max-width:19ch; margin:0;
-}
-.compile .ch{ transition:none; }
-.compile .ch:not(.on){
-  font-family:var(--mono);
-  font-weight:400;
-  color:var(--muted);
-  letter-spacing:-0.06em;
-}
-.beat{
-  margin-top:clamp(22px,3vw,44px);
-  max-width:46ch; font-size:clamp(14px,1.35vw,18px);
-  color:var(--muted); opacity:0; transform:translateY(14px);
-}
-
-/* ============================================================
-   02 · A FÁBRICA
-   ============================================================ */
-#factory{ height:320vh; }
-#factory .sticky{ justify-content:space-between; }
-
-.factory-grid{
-  flex:1;
-  display:grid;
-  grid-template-columns:1fr auto 1fr;
-  align-items:center;
-  gap:clamp(14px,4vw,60px);
-}
-.col{ display:flex; flex-direction:column; gap:clamp(8px,1.1vw,14px); }
-.col.out{ align-items:flex-end; text-align:right; }
-.unit{
-  border:1px solid var(--hair);
-  padding:.7em 1em;
-  font-size:clamp(11px,1.3vw,17px);
-  white-space:nowrap;
-  will-change:transform,opacity;
-}
-.col.in .unit{ color:var(--muted); font-family:var(--mono); font-size:clamp(10px,1.15vw,14px); }
-.col.out .unit{ font-weight:800; letter-spacing:-0.02em; opacity:0; }
-
-.core{ display:flex; flex-direction:column; align-items:center; gap:1.2em; }
-.core svg{ width:clamp(52px,7.5vw,104px); height:auto; will-change:transform; }
-.core .cap{
-  font-family:var(--mono); font-size:clamp(9px,.95vw,11.5px);
-  letter-spacing:.1em; color:var(--muted);
-  text-align:center; max-width:24ch; min-height:2.6em;
-  opacity:0; transition:opacity .35s ease;
-}
-.core .cap.show{ opacity:1; }
-
-@media (max-width:760px){
-  .factory-grid{ grid-template-columns:1fr; gap:18px; justify-items:center; }
-  .col{ flex-direction:row; flex-wrap:wrap; justify-content:center; gap:8px; }
-  .col.out{ align-items:center; text-align:center; }
-  .core svg{ width:64px; }
-}
-
-/* ============================================================
-   03 · ANATOMIA DE UM SISTEMA
-   ============================================================ */
-#anatomy{ height:230vh; }
-#anatomy .sticky{ justify-content:center; gap:clamp(20px,3vw,44px); }
-.anatomy-h{
-  font-size:clamp(22px,3.4vw,50px);
-  font-weight:900; letter-spacing:-0.035em; line-height:1.06;
-  max-width:17ch; margin:0;
-  text-wrap:balance;
-}
-.layers{ display:flex; flex-direction:column; gap:clamp(5px,.7vw,9px); max-width:1000px; width:100%; }
-.layer{
-  position:relative; overflow:hidden;
-  border:1px solid var(--hair);
-  padding:clamp(.7em,1.5vw,1.05em) clamp(1em,2vw,1.5em);
-  display:flex; align-items:baseline; justify-content:space-between; gap:1.5em;
-  opacity:0; transform:translateY(18px);
-  will-change:transform,opacity;
-}
-.layer .n{
-  font-family:var(--mono); font-size:clamp(9px,.9vw,11px);
-  letter-spacing:.14em; color:var(--muted);
-  position:absolute; left:clamp(.5em,1vw,.8em); top:.5em;
-}
-.layer .t{ font-weight:800; font-size:clamp(14px,1.9vw,26px); letter-spacing:-0.02em; padding-left:clamp(1.6em,3vw,2.4em); }
-.layer .d{ font-size:clamp(10px,1.1vw,14px); color:var(--muted); text-align:right; }
-.layer::after{
-  content:""; position:absolute; inset:0;
-  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--fg) 8%,transparent),transparent);
-  transform:translateX(-100%); opacity:0;
-}
-.layers.live .layer::after{ animation:sweep 3.4s cubic-bezier(.45,0,.2,1) infinite; opacity:1; }
-.layers.live .layer:nth-child(1)::after{ animation-delay:0s; }
-.layers.live .layer:nth-child(2)::after{ animation-delay:.13s; }
-.layers.live .layer:nth-child(3)::after{ animation-delay:.26s; }
-.layers.live .layer:nth-child(4)::after{ animation-delay:.39s; }
-.layers.live .layer:nth-child(5)::after{ animation-delay:.52s; }
-@keyframes sweep{
-  0%{ transform:translateX(-100%); }
-  55%,100%{ transform:translateX(100%); }
-}
-.anatomy-foot{ font-size:clamp(13px,1.3vw,17px); color:var(--muted); max-width:50ch; opacity:0; }
-
-@media (max-width:700px){
-  .layer{ flex-direction:column; align-items:flex-start; gap:.15em; }
-  .layer .d{ text-align:left; padding-left:clamp(1.6em,3vw,2.4em); }
-}
-
-/* ============================================================
-   04 · A CORRIDA — única cena que roda sozinha, no tempo dela
-   ============================================================ */
-#race{ height:200vh; }
-#race .sticky{ justify-content:center; gap:clamp(16px,2.4vw,32px); }
-.race-h{
-  font-size:clamp(22px,3.4vw,50px); font-weight:900;
-  letter-spacing:-0.035em; line-height:1.06; margin:0; text-wrap:balance;
-}
-.race-grid{
-  display:grid; grid-template-columns:1fr 1fr;
-  gap:1px; background:var(--hair); border:1px solid var(--hair);
-}
-.lane{ background:var(--bg); padding:clamp(16px,2.2vw,30px); display:flex; flex-direction:column; gap:clamp(12px,1.6vw,20px); }
-.lane-head{
-  display:flex; justify-content:space-between; align-items:baseline; gap:1em;
-  border-bottom:1px solid var(--hair); padding-bottom:.7em;
-}
-.lane-head span:first-child{ font-weight:800; font-size:clamp(13px,1.5vw,19px); letter-spacing:-0.02em; }
-.tick{ font-family:var(--mono); font-size:clamp(9px,.95vw,11px); letter-spacing:.1em; color:var(--muted); font-variant-numeric:tabular-nums; }
-
-.steps{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.34em; }
-.steps li,.auto-step{
-  display:flex; align-items:center; gap:.7em;
-  font-size:clamp(10.5px,1.15vw,14.5px);
-  color:var(--muted); line-height:1.35;
-}
-.box{
-  flex:0 0 auto; width:.72em; height:.72em;
-  border:1px solid var(--muted); display:block;
-}
-.steps li.done,.auto-step.done{ color:var(--fg); }
-.steps li.done .box,.auto-step.done .box{ background:var(--fg); border-color:var(--fg); }
-.steps li.now .box,.auto-step.now .box{ border-color:var(--fg); box-shadow:inset 0 0 0 2px var(--bg),inset 0 0 0 9px var(--fg); }
-.steps li.snag.done{ color:var(--fg); }
-.steps li.snag.done .box{ background:none; border-color:var(--fg); position:relative; }
-.steps li.snag .box::after{ content:""; position:absolute; inset:22%; background:var(--fg); opacity:0; }
-.steps li.snag.done .box::after{ opacity:1; }
-
-.auto{ display:flex; flex-direction:column; gap:.34em; flex:1; }
-.auto-step{ opacity:0; transition:opacity .3s ease; }
-.auto-step.seen{ opacity:1; }
-.lane-foot{
-  margin-top:auto; border-top:1px solid var(--hair); padding-top:.8em;
-  font-family:var(--mono); font-size:clamp(9px,.95vw,11.5px);
-  letter-spacing:.08em; color:var(--muted); font-variant-numeric:tabular-nums;
-}
-@media (max-width:700px){
-  .race-grid{ grid-template-columns:1fr; }
-  #race{ height:230vh; }
-}
-
-/* ============================================================
-   05 · MODELOS DE TRABALHO
-   ============================================================ */
-#models{ padding:clamp(90px,14vh,180px) var(--pad); }
-#models .head{ margin-bottom:clamp(28px,4vw,56px); }
-.models{
-  display:grid; grid-template-columns:repeat(2,1fr);
-  gap:1px; background:var(--hair);
-  border:1px solid var(--hair);
-}
-.model{
-  background:var(--bg);
-  padding:clamp(24px,3.4vw,52px);
-  min-height:clamp(160px,20vw,240px);
-  display:flex; flex-direction:column; justify-content:space-between; gap:1.4em;
-  opacity:0; transform:translateY(24px);
-  transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1), background-color .35s ease;
-}
-.model.in{ opacity:1; transform:none; }
-.model:hover{ background:var(--off); }
-body.is-dark .model:hover{ background:#141417; }
-.model h3{ font-size:clamp(17px,2.1vw,29px); font-weight:800; letter-spacing:-0.025em; margin:0; }
-.model p{ margin:0; color:var(--muted); font-size:clamp(12.5px,1.25vw,16px); max-width:34ch; }
-.models-foot{
-  margin-top:clamp(28px,4vw,56px);
-  font-size:clamp(16px,2.4vw,34px); font-weight:800; letter-spacing:-0.03em;
-  max-width:22ch; text-wrap:balance;
-  opacity:0; transform:translateY(20px);
-  transition:opacity .9s ease, transform .9s ease;
-}
-.models-foot.in{ opacity:1; transform:none; }
-@media (max-width:700px){ .models{ grid-template-columns:1fr; } }
-
-/* ============================================================
-   05 · ASSINATURA
-   ============================================================ */
-#sign{ height:170vh; }
-#sign .sticky{ align-items:center; justify-content:center; text-align:center; gap:clamp(14px,2vw,26px); }
-#sign svg{ width:clamp(70px,12vw,168px); height:auto; }
-#sign .name{
-  font-size:clamp(28px,5.6vw,80px); font-weight:900; letter-spacing:-0.045em; line-height:1;
+/* ---------- revelação de entrada (só texto) ---------- */
+html.anim .rv{
   opacity:0; transform:translateY(16px);
+  transition:opacity .7s var(--curve), transform .7s var(--curve);
+  transition-delay:calc(var(--i,0) * 70ms);
 }
-#sign .tag{ opacity:0; transform:translateY(12px); }
-#sign .rights{
-  position:absolute; bottom:calc(var(--pad)*.7); left:0; right:0;
-  font-family:var(--mono); font-size:10px; letter-spacing:.14em; color:var(--muted);
-  opacity:0;
+html.anim .rv.in{ opacity:1; transform:none; }
+
+.label{
+  font-family:var(--mono); font-size:clamp(10px,1vw,12px);
+  letter-spacing:.2em; text-transform:uppercase; color:var(--dim);
+}
+section{ border-top:1px solid var(--hair); padding:clamp(56px,9vh,112px) 0; }
+.sec-head{ margin-bottom:clamp(30px,5vw,58px); }
+.sec-head h2{
+  margin-top:.7em; font-size:clamp(21px,3.2vw,42px); font-weight:900;
+  letter-spacing:-0.035em; line-height:1.08; max-width:22ch; text-wrap:balance;
 }
 
-/* ============================================================
-   MOVIMENTO REDUZIDO
-   ============================================================ */
+/* ---------- 01 abertura ---------- */
+header{ padding:clamp(56px,10vh,120px) 0 clamp(66px,12vh,150px); overflow:hidden; }
+.mark{ display:flex; align-items:center; gap:.6em; font-weight:700; font-size:14px; letter-spacing:-0.01em; }
+.mark svg{ height:24px; width:auto; display:block; }
+h1{
+  margin-top:clamp(30px,5vh,64px);
+  font-size:clamp(33px,6.6vw,92px); font-weight:900;
+  letter-spacing:-0.045em; line-height:1; text-wrap:balance; max-width:16ch;
+}
+.lead{
+  margin-top:clamp(18px,2.6vw,30px); max-width:48ch;
+  font-size:clamp(15px,1.6vw,21px); color:var(--dim);
+}
+/* linha que se estende com a rolagem */
+.rule{
+  height:1px; background:var(--hair); margin-top:clamp(28px,4vh,48px);
+  transform:scaleX(var(--w,0)); transform-origin:0 50%;
+}
+
+/* ---------- 02 cenário ---------- */
+.facts{ display:grid; gap:clamp(20px,2.6vw,34px); }
+@media (min-width:820px){ .facts{ grid-template-columns:repeat(3,1fr); } }
+.fact{ border-top:1px solid var(--hair); padding-top:clamp(14px,1.6vw,20px); }
+.fact .big{
+  font-size:clamp(30px,4.4vw,58px); font-weight:900;
+  letter-spacing:-0.04em; line-height:1; font-variant-numeric:tabular-nums;
+}
+.fact p{ margin-top:.7em; color:var(--dim); font-size:clamp(13px,1.3vw,16px); max-width:34ch; }
+.fact cite{
+  display:block; margin-top:.8em; font-family:var(--mono); font-style:normal;
+  font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold);
+}
+.thesis{
+  margin-top:clamp(38px,5.5vw,70px); font-size:clamp(19px,2.9vw,38px);
+  font-weight:900; letter-spacing:-0.035em; max-width:22ch; text-wrap:balance;
+}
+
+/* ---------- 03 atuação ---------- */
+.grid2{ display:grid; gap:1px; background:var(--hair); border:1px solid var(--hair); }
+@media (min-width:780px){ .grid2{ grid-template-columns:1fr 1fr; } }
+.cell{
+  position:relative; background:var(--ground); padding:clamp(24px,3.2vw,44px);
+  transition:background .35s ease;
+  transform:translateY(var(--py,0px));   /* parallax leve por coluna */
+}
+.cell::before{
+  content:""; position:absolute; top:0; left:0; right:0; height:2px;
+  background:var(--gold); transform:scaleX(0); transform-origin:0 50%;
+  transition:transform .45s var(--curve);
+}
+.cell:hover{ background:var(--sink); }
+.cell:hover::before{ transform:scaleX(1); }
+.cell h3{ font-size:clamp(17px,2vw,25px); font-weight:800; letter-spacing:-0.025em; }
+.cell p{ margin-top:.65em; color:var(--dim); font-size:clamp(13.5px,1.35vw,16.5px); max-width:38ch; }
+
+/* ---------- 04 princípios ---------- */
+.principles{ display:grid; gap:clamp(26px,3.4vw,44px); }
+@media (min-width:820px){ .principles{ grid-template-columns:1fr 1fr; } }
+.principle{ position:relative; display:flex; gap:clamp(14px,1.8vw,22px); }
+.principle .n{
+  font-family:var(--mono); font-size:11px; letter-spacing:.16em;
+  color:var(--dim); padding-top:.45em; position:relative;
+  transition:color .35s var(--curve);
+}
+.principle.lit .n{ color:var(--gold); }
+/* espinha desenhada pela rolagem */
+.principle .n::after{
+  content:""; position:absolute; left:50%; top:2.4em; bottom:-2.8em; width:1px;
+  background:var(--gold); opacity:.75;
+  transform:scaleY(var(--fill,0)); transform-origin:50% 0;
+}
+@media (max-width:819px){ .principle:last-child .n::after{ display:none; } }
+@media (min-width:820px){ .principle:nth-last-child(-n+2) .n::after{ display:none; } }
+.principle h3{ font-size:clamp(16px,1.85vw,23px); font-weight:800; letter-spacing:-0.025em; }
+.principle p{ margin-top:.5em; color:var(--dim); font-size:clamp(13px,1.3vw,16px); max-width:40ch; }
+
+/* ---------- 05 metodologia ---------- */
+.flow{ position:relative; }
+.flow-line{
+  position:absolute; left:0; right:0; top:0; height:1px; background:var(--gold);
+  transform:scaleX(var(--w,0)); transform-origin:0 50%;
+}
+.steps{ display:grid; gap:clamp(22px,3vw,38px); }
+@media (min-width:900px){ .steps{ grid-template-columns:repeat(4,1fr); } }
+.step{ border-top:1px solid var(--hair); padding-top:clamp(14px,1.6vw,20px); position:relative; }
+.step::before{
+  content:""; position:absolute; top:-3.5px; left:0; width:6px; height:6px;
+  background:var(--ground); border:1px solid var(--hair); border-radius:50%;
+  transition:background .3s var(--curve), border-color .3s var(--curve), transform .3s var(--curve);
+}
+.step.lit::before{ background:var(--gold); border-color:var(--gold); transform:scale(1.25); }
+.step .n{ font-family:var(--mono); font-size:11px; letter-spacing:.18em; color:var(--dim); transition:color .3s var(--curve); }
+.step.lit .n{ color:var(--gold); }
+.step h3{ margin-top:.9em; font-size:clamp(16px,1.7vw,21px); font-weight:800; letter-spacing:-0.02em; }
+.step p{ margin-top:.5em; color:var(--dim); font-size:clamp(12.5px,1.25vw,15.5px); }
+@media (max-width:899px){ .flow-line{ display:none; } }
+
+/* ---------- 06 tecnologia ---------- */
+.stack{ display:grid; gap:clamp(24px,3vw,40px); }
+@media (min-width:820px){ .stack{ grid-template-columns:repeat(2,1fr); } }
+@media (min-width:1080px){ .stack{ grid-template-columns:repeat(4,1fr); } }
+.pile{ transform:translateY(var(--py,0px)); }   /* colunas em ritmos distintos */
+.pile h4{ font-family:var(--mono); font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--dim); font-weight:400; }
+.pile ul{ margin-top:1.1em; display:flex; flex-direction:column; gap:.55em; }
+.pile li{ font-size:clamp(13.5px,1.35vw,16.5px); font-weight:500; }
+
+/* ---------- 07 empresa ---------- */
+.about-wrap{ position:relative; }
+.watermark{
+  position:absolute; right:-2%; top:50%; width:clamp(150px,26vw,330px);
+  transform:translate(0,calc(-50% + var(--py,0px)));
+  opacity:.08; color:var(--gold); pointer-events:none;
+}
+.watermark svg{ width:100%; height:auto; display:block; }
+.about{ position:relative; font-size:clamp(15px,1.75vw,23px); max-width:44ch; line-height:1.45; }
+.about + .about{ margin-top:1.1em; color:var(--dim); font-size:clamp(13.5px,1.4vw,18px); }
+
+/* ---------- 08 modelos ---------- */
+.models{ display:grid; gap:clamp(20px,2.6vw,34px); }
+@media (min-width:780px){ .models{ grid-template-columns:1fr 1fr; } }
+.model{ display:flex; gap:clamp(13px,1.6vw,20px); align-items:baseline; }
+.model .dot{
+  width:7px; height:7px; flex:0 0 7px; background:var(--ink); margin-top:.55em;
+  transform:scale(var(--s,1));
+}
+.model h3{ font-size:clamp(16px,1.8vw,22px); font-weight:800; letter-spacing:-0.02em; }
+.model p{ margin-top:.35em; color:var(--dim); font-size:clamp(13px,1.3vw,16px); max-width:36ch; }
+.closing{
+  margin-top:clamp(40px,5.5vw,70px); font-size:clamp(18px,2.6vw,34px);
+  font-weight:900; letter-spacing:-0.03em; max-width:24ch; text-wrap:balance;
+}
+
+/* ---------- 09 fecho ---------- */
+footer{
+  border-top:1px solid var(--hair);
+  /* o fecho precisa de espaço: é nele que a marca é desenhada pela rolagem */
+  padding:clamp(130px,24vh,280px) 0 clamp(60px,10vh,110px); text-align:center;
+}
+/* forma preenchida não se desenha por traço: a rolagem revela de cima
+   para baixo com um corte, que é o equivalente para silhueta cheia */
+footer svg{
+  width:clamp(46px,5.4vw,70px); height:auto; display:block; margin:0 auto;
+  clip-path:inset(0 0 calc((1 - var(--draw,1)) * 100%) 0);
+}
+footer .nm{ margin-top:clamp(20px,2.6vw,32px); font-size:clamp(22px,3.6vw,50px); font-weight:900; letter-spacing:-0.04em; }
+footer .tg{ margin-top:1em; }
+
+/* ---------- movimento reduzido ---------- */
 @media (prefers-reduced-motion:reduce){
-  body{ transition:none; }
-  .chip,.hint span{ animation:none !important; }
-  .layers.live .layer::after{ animation:none; opacity:0; }
-  /* sem as cenas roladas, as seções altas viram uma página estática limpa */
-  #chaos,#manifesto,#factory,#anatomy,#sign{ height:100vh; height:100svh; }
-  .model,.models-foot{ opacity:1 !important; transform:none !important; }
+  html.anim .rv,html.anim .rv.in{ opacity:1 !important; transform:none !important; transition:none !important; }
+  .rule,.flow-line{ transform:scaleX(1) !important; }
+  .principle .n::after{ transform:scaleY(1) !important; }
+  .cell,.pile,.watermark{ transform:none !important; }
+  footer svg{ clip-path:none !important; }
+  .step::before{ background:var(--gold); border-color:var(--gold); }
+  .progress{ display:none; }
 }
-
-/* caos no mobile: menos fragmentos e coluna única, nada cortado pela borda */
-@media (max-width:700px){
-  .chip-wrap:nth-child(n+6){ display:none; }
-  .grid-lines i.v:nth-child(2),.grid-lines i.v:nth-child(3){ display:none; }
-}
-:focus-visible{ outline:2px solid var(--fg); outline-offset:3px; }
 </style>
 
-<!-- ══════════════════════ CROMO FIXO ══════════════════════ -->
-<header class="nav">
-  <div class="brand" id="brand">
-    <svg viewBox="0 0 64 44" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <polyline points="8,20 22,6 22,20 40,6"/>
-      <polyline points="14,38 32,24 32,38 46,24"/>
-    </svg>
-    <span>Planee Lab IA</span>
-  </div>
-</header>
+<script>
+/* Marca a intenção de animar antes de qualquer pintura, para não existir
+   a janela em que o conteúdo aparece, some e reaparece. */
+try{
+  if ("IntersectionObserver" in window &&
+      !matchMedia("(prefers-reduced-motion: reduce)").matches)
+    document.documentElement.classList.add("anim");
+}catch(e){}
+</script>
 
-<div class="rail" aria-hidden="true">
-  <svg viewBox="0 0 14 1000" preserveAspectRatio="none">
-    <line class="track" x1="7" y1="90" x2="7" y2="910"/>
-    <line class="live" id="railLive" x1="7" y1="90" x2="7" y2="910"/>
-    <circle class="node" cx="7" cy="90" r="3"/>
-    <circle class="node" cx="7" cy="254" r="3"/>
-    <circle class="node" cx="7" cy="418" r="3"/>
-    <circle class="node" cx="7" cy="582" r="3"/>
-    <circle class="node" cx="7" cy="746" r="3"/>
-    <circle class="node" cx="7" cy="910" r="3"/>
-  </svg>
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<div class="topbar" id="topbar" aria-hidden="true">
+  <svg viewBox="0 0 100 125.84" fill="currentColor" aria-hidden="true"><path d="M5.62 51.46 L8.31 51.46 L11.01 52.59 L48.54 74.39 L50.11 74.83 L88.76 97.98 L91.68 97.53 L93.26 95.50 L93.26 87.86 L93.93 86.29 L95.73 85.17 L98.20 85.62 L99.56 87.20 L99.56 113.71 L97.76 117.08 L95.73 118.66 L92.81 119.55 L90.12 119.32 L87.19 117.98 L50.11 96.63 L14.39 74.39 L8.99 71.68 L7.19 72.59 L6.29 74.39 L6.29 102.70 L6.74 103.82 L8.31 105.17 L10.11 105.17 L24.49 95.96 L26.52 95.28 L28.76 95.28 L30.34 95.73 L39.56 101.57 L40.90 103.14 L41.13 106.07 L39.56 108.31 L9.67 125.39 L6.07 125.62 L2.92 124.27 L1.12 122.24 L0.00 119.10 L0.00 57.52 L1.35 54.16 L3.38 52.36 L5.39 51.68 L5.62 51.46 Z"/><path d="M91.01 0.00 L94.61 0.23 L97.08 1.57 L98.65 3.37 L99.77 6.97 L99.77 67.64 L98.20 71.68 L96.41 73.25 L93.93 74.16 L90.56 73.93 L88.76 73.04 L51.23 51.23 L49.66 50.79 L11.01 27.64 L8.31 27.86 L6.52 29.89 L6.07 38.87 L3.82 40.45 L2.47 40.45 L1.12 39.78 L0.00 37.75 L0.00 13.04 L1.58 8.99 L4.95 6.52 L6.74 6.07 L10.33 6.52 L49.66 28.99 L88.32 53.03 L89.67 53.71 L91.47 53.71 L93.26 51.91 L93.26 22.25 L91.91 20.68 L89.67 20.45 L88.76 20.90 L75.95 29.21 L73.03 30.34 L71.02 30.34 L68.99 29.66 L60.44 24.28 L58.66 22.02 L58.66 19.33 L60.44 17.08 L88.99 0.68 L90.79 0.23 L91.01 0.00 Z"/></svg>
+  <span>Planee Lab IA</span>
 </div>
 
-<div class="readout" id="readout">01 · CAOS</div>
+<div class="wrap">
 
-<main>
-<!-- ══════════════════════ 00 · CAOS → ORDEM ══════════════════════ -->
-<section class="scene" id="chaos">
-  <div class="sticky">
-    <div class="stage">
-      <div class="grid-lines" id="gridLines" aria-hidden="true"></div>
-      <div id="chips" aria-hidden="true"></div>
+  <!-- 01 ─────────── AUTODEFINIÇÃO ─────────── -->
+  <header id="hero">
+    <div class="mark" id="heroMark">
+      <svg viewBox="0 0 100 125.84" fill="currentColor" aria-hidden="true"><path d="M5.62 51.46 L8.31 51.46 L11.01 52.59 L48.54 74.39 L50.11 74.83 L88.76 97.98 L91.68 97.53 L93.26 95.50 L93.26 87.86 L93.93 86.29 L95.73 85.17 L98.20 85.62 L99.56 87.20 L99.56 113.71 L97.76 117.08 L95.73 118.66 L92.81 119.55 L90.12 119.32 L87.19 117.98 L50.11 96.63 L14.39 74.39 L8.99 71.68 L7.19 72.59 L6.29 74.39 L6.29 102.70 L6.74 103.82 L8.31 105.17 L10.11 105.17 L24.49 95.96 L26.52 95.28 L28.76 95.28 L30.34 95.73 L39.56 101.57 L40.90 103.14 L41.13 106.07 L39.56 108.31 L9.67 125.39 L6.07 125.62 L2.92 124.27 L1.12 122.24 L0.00 119.10 L0.00 57.52 L1.35 54.16 L3.38 52.36 L5.39 51.68 L5.62 51.46 Z"/><path d="M91.01 0.00 L94.61 0.23 L97.08 1.57 L98.65 3.37 L99.77 6.97 L99.77 67.64 L98.20 71.68 L96.41 73.25 L93.93 74.16 L90.56 73.93 L88.76 73.04 L51.23 51.23 L49.66 50.79 L11.01 27.64 L8.31 27.86 L6.52 29.89 L6.07 38.87 L3.82 40.45 L2.47 40.45 L1.12 39.78 L0.00 37.75 L0.00 13.04 L1.58 8.99 L4.95 6.52 L6.74 6.07 L10.33 6.52 L49.66 28.99 L88.32 53.03 L89.67 53.71 L91.47 53.71 L93.26 51.91 L93.26 22.25 L91.91 20.68 L89.67 20.45 L88.76 20.90 L75.95 29.21 L73.03 30.34 L71.02 30.34 L68.99 29.66 L60.44 24.28 L58.66 22.02 L58.66 19.33 L60.44 17.08 L88.99 0.68 L90.79 0.23 L91.01 0.00 Z"/></svg>
+      <span>Planee Lab IA</span>
+    </div>
+    <h1 class="rv" style="--i:1" id="heroTitle">Laboratório de Software e IA</h1>
+    <p class="lead rv" style="--i:2" id="heroLead">Sistemas sob medida para operações que hoje dependem de execução manual.</p>
+    <div class="rule" id="heroRule" aria-hidden="true"></div>
+  </header>
+
+  <!-- 02 ─────────── O CENÁRIO ─────────── -->
+  <section id="scene">
+    <div class="sec-head">
+      <div class="label rv">O cenário</div>
+      <h2 class="rv" style="--i:1">A tecnologia existe. A maior parte das empresas não consegue colocá-la para funcionar.</h2>
     </div>
 
-    <div class="hero">
-      <h1>
-        <span class="ln"><i>Sistemas que fazem</i></span>
-        <span class="ln"><i>o trabalho acontecer</i></span>
-        <span class="ln"><i>sozinho.</i></span>
-      </h1>
-      <p class="sub" id="heroSub">Laboratório de engenharia e IA. Projetamos, construímos e operamos software sob medida — automações, agentes, plataformas e produtos.</p>
-    </div>
-
-    <div class="hint" id="hint">ROLE <span>↓</span></div>
-  </div>
-</section>
-
-<!-- ══════════════════════ 01 · MANIFESTO ══════════════════════ -->
-<section class="scene" id="manifesto">
-  <div class="sticky">
-    <div class="label compile-head" id="compileHead">&gt; processo.detectar(repeticao)</div>
-    <p class="compile" id="compile" data-text="Todo processo que alguém repete todo dia é um sistema esperando para ser escrito."></p>
-    <p class="beat" id="beat">Não construímos para substituir pessoas. Construímos para o trabalho parar de esperar por elas.</p>
-  </div>
-</section>
-
-<!-- ══════════════════════ 02 · A FÁBRICA ══════════════════════ -->
-<section class="scene" id="factory">
-  <div class="sticky">
-    <div class="label">O que construímos</div>
-
-    <div class="factory-grid">
-      <div class="col in" id="colIn">
-        <div class="unit">dados soltos</div>
-        <div class="unit">tarefas manuais</div>
-        <div class="unit">planilhas</div>
-        <div class="unit">mensagens</div>
+    <div class="facts">
+      <div class="fact rv">
+        <div class="big" data-to="60" data-suffix="%">60%</div>
+        <p>do tempo de um time é gasto em trabalho sobre o trabalho: cobrar status, procurar informação, transitar entre ferramentas.</p>
+        <cite>Asana</cite>
       </div>
-
-      <div class="core">
-        <svg id="coreMark" viewBox="0 0 64 44" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <polyline points="8,20 22,6 22,20 40,6"/>
-          <polyline points="14,38 32,24 32,38 46,24"/>
-        </svg>
-        <div class="cap" id="coreCap"></div>
+      <div class="fact rv" style="--i:1">
+        <div class="big" data-to="40" data-prefix="&lt;" data-suffix="%">&lt;40%</div>
+        <p>das empresas que já usam IA conseguiram levar a aplicação além do piloto, embora 88% a utilizem em alguma função.</p>
+        <cite>McKinsey · 2026</cite>
       </div>
-
-      <div class="col out" id="colOut">
-        <div class="unit">Automações</div>
-        <div class="unit">Agentes de IA</div>
-        <div class="unit">Plataformas</div>
-        <div class="unit">Produtos SaaS</div>
+      <div class="fact rv" style="--i:2">
+        <div class="big" data-to="40" data-suffix="%">40%</div>
+        <p>dos projetos com agentes de IA devem ser cancelados até 2027, por custo crescente, valor incerto e controle de risco insuficiente.</p>
+        <cite>Gartner · 2025</cite>
       </div>
     </div>
 
-    <div class="label" style="text-align:right">Planee Lab IA</div>
-  </div>
-</section>
+    <p class="thesis rv" style="--i:3">O problema raramente é o modelo. É engenharia.</p>
+  </section>
 
-<!-- ══════════════════════ 03 · ANATOMIA ══════════════════════ -->
-<section class="scene" id="anatomy">
-  <div class="sticky">
-    <h2 class="anatomy-h">Todo sistema que entregamos tem as mesmas cinco camadas.</h2>
-
-    <div class="layers" id="layers">
-      <div class="layer"><span class="n">01</span><span class="t">Entrada</span><span class="d">dados, arquivos, mensagens</span></div>
-      <div class="layer"><span class="n">02</span><span class="t">Regras</span><span class="d">o que pode e o que não pode</span></div>
-      <div class="layer"><span class="n">03</span><span class="t">Inteligência</span><span class="d">ler, decidir, gerar</span></div>
-      <div class="layer"><span class="n">04</span><span class="t">Execução</span><span class="d">a ação no mundo real</span></div>
-      <div class="layer"><span class="n">05</span><span class="t">Observação</span><span class="d">log, métrica, ajuste</span></div>
+  <!-- 03 ─────────── ÁREAS DE ATUAÇÃO ─────────── -->
+  <section id="areas">
+    <div class="sec-head">
+      <div class="label rv">Áreas de atuação</div>
+      <h2 class="rv" style="--i:1">Quatro frentes. A mesma base de engenharia.</h2>
     </div>
 
-    <p class="anatomy-foot" id="anatomyFoot">O que muda de projeto para projeto é o que passa por elas.</p>
-  </div>
-</section>
+    <div class="grid2">
+      <article class="cell rv"><h3>Automação de processos</h3><p>Fluxos que executam do início ao fim, sem depender de acionamento manual.</p></article>
+      <article class="cell rv" style="--i:1"><h3>Integração de sistemas</h3><p>Conexão entre ferramentas que não se comunicam entre si, eliminando a transferência manual de dados.</p></article>
+      <article class="cell rv" style="--i:2"><h3>Sistemas de gestão</h3><p>Operação, custos e indicadores consolidados conforme o modelo de cada negócio.</p></article>
+      <article class="cell rv" style="--i:3"><h3>Agentes de IA</h3><p>Interpretação de linguagem, documentos e áudio, com execução dentro de limites definidos.</p></article>
+    </div>
+  </section>
 
-<!-- ══════════════════════ 04 · A CORRIDA (roda sozinha) ══════════════════════ -->
-<section class="scene" id="race">
-  <div class="sticky">
-    <div class="label">Demonstração · fechar o relatório do mês</div>
-    <h2 class="race-h">A mesma tarefa, dois caminhos.</h2>
+  <!-- 04 ─────────── PRINCÍPIOS ─────────── -->
+  <section id="prin">
+    <div class="sec-head">
+      <div class="label rv">Princípios de engenharia</div>
+      <h2 class="rv" style="--i:1">O que decidimos antes de escrever a primeira linha.</h2>
+    </div>
 
-    <div class="race-grid">
-      <div class="lane">
-        <div class="lane-head"><span>Manual</span><span class="tick" id="tickManual">parado</span></div>
-        <ol class="steps" id="stepsManual">
-          <li><i class="box"></i><span>abrir a planilha de vendas</span></li>
-          <li><i class="box"></i><span>filtrar o mês corrente</span></li>
-          <li><i class="box"></i><span>remover duplicados</span></li>
-          <li><i class="box"></i><span>copiar para o modelo</span></li>
-          <li><i class="box"></i><span>conferir os totais</span></li>
-          <li class="snag"><i class="box"></i><span>divergência na linha 812 — refazer</span></li>
-          <li><i class="box"></i><span>recalcular</span></li>
-          <li><i class="box"></i><span>gerar o PDF</span></li>
-          <li><i class="box"></i><span>escrever o e-mail</span></li>
-          <li><i class="box"></i><span>anexar e revisar</span></li>
-          <li><i class="box"></i><span>enviar para 9 pessoas</span></li>
-          <li><i class="box"></i><span>arquivar a cópia</span></li>
-        </ol>
-        <div class="lane-foot" id="footManual">à espera</div>
-      </div>
-
-      <div class="lane">
-        <div class="lane-head"><span>Com a Planee</span><span class="tick" id="tickAuto">em espera</span></div>
-        <div class="auto">
-          <div class="auto-step" id="autoTrigger"><i class="box"></i><span>gatilho — todo dia 1, às 08:00</span></div>
-          <div class="auto-step" id="autoRun"><i class="box"></i><span>executar()</span></div>
-          <div class="auto-step" id="autoDone"><i class="box"></i><span>enviado e arquivado</span></div>
+    <div class="principles">
+      <div class="principle rv">
+        <span class="n">01</span>
+        <div>
+          <h3>Nem toda automação requer IA</h3>
+          <p>Delimitamos onde o processo comporta regra determinística e onde há necessidade de julgamento. Essa separação define custo e previsibilidade.</p>
         </div>
-        <div class="lane-foot" id="footAuto">à espera</div>
+      </div>
+      <div class="principle rv" style="--i:1">
+        <span class="n">02</span>
+        <div>
+          <h3>Todo sistema tem limite de decisão</h3>
+          <p>O que a automação resolve sozinha e o que exige aprovação humana é definido em projeto, não descoberto em produção.</p>
+        </div>
+      </div>
+      <div class="principle rv" style="--i:2">
+        <span class="n">03</span>
+        <div>
+          <h3>Software em produção falha</h3>
+          <p>Registro, alerta e reprocessamento integram a entrega. Um sistema que falha em silêncio é pior do que nenhum sistema.</p>
+        </div>
+      </div>
+      <div class="principle rv" style="--i:3">
+        <span class="n">04</span>
+        <div>
+          <h3>O processo vem antes da ferramenta</h3>
+          <p>Automatizar um processo mal desenhado apenas acelera o erro. Redesenhar é parte do trabalho, não serviço à parte.</p>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- ══════════════════════ 05 · MODELOS ══════════════════════ -->
-<section id="models">
-  <div class="label head">Como nos envolvemos</div>
-  <div class="models">
-    <article class="model"><h3>Projeto sob medida</h3><p>Escopo definido, construção e operação.</p></article>
-    <article class="model"><h3>Produto em parceria</h3><p>Construímos o software; o retorno é dividido.</p></article>
-    <article class="model"><h3>Sistema interno</h3><p>Ferramenta própria para operar melhor que o mercado.</p></article>
-    <article class="model"><h3>Produto do laboratório</h3><p>Ideias que viram produto aqui dentro.</p></article>
-  </div>
-  <p class="models-foot" id="modelsFoot">A forma do negócio muda. O que construímos, não.</p>
-</section>
+  <!-- 05 ─────────── METODOLOGIA ─────────── -->
+  <section id="method">
+    <div class="sec-head">
+      <div class="label rv">Metodologia</div>
+      <h2 class="rv" style="--i:1">Do diagnóstico à operação contínua.</h2>
+    </div>
 
-<!-- ══════════════════════ 05 · ASSINATURA ══════════════════════ -->
-<section class="scene" id="sign">
-  <div class="sticky">
-    <svg id="signMark" viewBox="0 0 64 44" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <polyline points="8,20 22,6 22,20 40,6"/>
-      <polyline points="14,38 32,24 32,38 46,24"/>
-    </svg>
-    <div class="name" id="signName">Planee Lab IA</div>
-    <div class="label tag" id="signTag">Engenharia e inteligência aplicada</div>
-    <div class="rights" id="signRights">© 2026 PLANEE LAB IA</div>
-  </div>
-</section>
-</main>
+    <div class="flow" id="flow">
+      <div class="flow-line" id="flowLine" aria-hidden="true"></div>
+      <div class="steps">
+        <div class="step rv"><div class="n">01</div><h3>Diagnóstico</h3><p>Mapeamento do processo em operação, incluindo exceções e contornos informais.</p></div>
+        <div class="step rv" style="--i:1"><div class="n">02</div><h3>Delimitação</h3><p>Definição do que é regra, do que exige julgamento e do que permanece humano.</p></div>
+        <div class="step rv" style="--i:2"><div class="n">03</div><h3>Construção</h3><p>Desenvolvimento e entrada em produção com escopo e limites definidos.</p></div>
+        <div class="step rv" style="--i:3"><div class="n">04</div><h3>Operação</h3><p>Monitoramento, medição e ajuste conforme o uso real do sistema.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 ─────────── TECNOLOGIA ─────────── -->
+  <section id="tech">
+    <div class="sec-head">
+      <div class="label rv">Tecnologia</div>
+      <h2 class="rv" style="--i:1">O que sustenta os sistemas que entregamos.</h2>
+    </div>
+
+    <div class="stack">
+      <div class="pile rv"><h4>Desenvolvimento</h4><ul><li>Python</li><li>TypeScript</li><li>Node.js</li><li>React</li></ul></div>
+      <div class="pile rv" style="--i:1"><h4>Dados e infraestrutura</h4><ul><li>PostgreSQL</li><li>Supabase</li><li>Docker</li><li>Infraestrutura dedicada</li></ul></div>
+      <div class="pile rv" style="--i:2"><h4>Inteligência artificial</h4><ul><li>Modelos de linguagem</li><li>Busca semântica e RAG</li><li>Transcrição de áudio</li><li>Extração de documentos</li></ul></div>
+      <div class="pile rv" style="--i:3"><h4>Integrações</h4><ul><li>APIs REST e webhooks</li><li>WhatsApp Business</li><li>ERPs e sistemas de gestão</li><li>XML de notas fiscais</li></ul></div>
+    </div>
+  </section>
+
+  <!-- 07 ─────────── A EMPRESA ─────────── -->
+  <section id="about">
+    <div class="sec-head">
+      <div class="label rv">A empresa</div>
+      <h2 class="rv" style="--i:1">Por que laboratório.</h2>
+    </div>
+    <div class="about-wrap">
+      <div class="watermark" id="watermark" aria-hidden="true">
+        <svg viewBox="0 0 100 125.84" fill="currentColor" aria-hidden="true"><path d="M5.62 51.46 L8.31 51.46 L11.01 52.59 L48.54 74.39 L50.11 74.83 L88.76 97.98 L91.68 97.53 L93.26 95.50 L93.26 87.86 L93.93 86.29 L95.73 85.17 L98.20 85.62 L99.56 87.20 L99.56 113.71 L97.76 117.08 L95.73 118.66 L92.81 119.55 L90.12 119.32 L87.19 117.98 L50.11 96.63 L14.39 74.39 L8.99 71.68 L7.19 72.59 L6.29 74.39 L6.29 102.70 L6.74 103.82 L8.31 105.17 L10.11 105.17 L24.49 95.96 L26.52 95.28 L28.76 95.28 L30.34 95.73 L39.56 101.57 L40.90 103.14 L41.13 106.07 L39.56 108.31 L9.67 125.39 L6.07 125.62 L2.92 124.27 L1.12 122.24 L0.00 119.10 L0.00 57.52 L1.35 54.16 L3.38 52.36 L5.39 51.68 L5.62 51.46 Z"/><path d="M91.01 0.00 L94.61 0.23 L97.08 1.57 L98.65 3.37 L99.77 6.97 L99.77 67.64 L98.20 71.68 L96.41 73.25 L93.93 74.16 L90.56 73.93 L88.76 73.04 L51.23 51.23 L49.66 50.79 L11.01 27.64 L8.31 27.86 L6.52 29.89 L6.07 38.87 L3.82 40.45 L2.47 40.45 L1.12 39.78 L0.00 37.75 L0.00 13.04 L1.58 8.99 L4.95 6.52 L6.74 6.07 L10.33 6.52 L49.66 28.99 L88.32 53.03 L89.67 53.71 L91.47 53.71 L93.26 51.91 L93.26 22.25 L91.91 20.68 L89.67 20.45 L88.76 20.90 L75.95 29.21 L73.03 30.34 L71.02 30.34 L68.99 29.66 L60.44 24.28 L58.66 22.02 L58.66 19.33 L60.44 17.08 L88.99 0.68 L90.79 0.23 L91.01 0.00 Z"/></svg>
+      </div>
+      <p class="about rv">A Planee Lab IA projeta, constrói e opera sistemas próprios e sob medida, reunindo engenharia de software e inteligência artificial na mesma equipe.</p>
+      <p class="about rv" style="--i:1">Essa combinação permite decidir, caso a caso, qual das duas resolve melhor cada parte do problema — em vez de aplicar a mesma resposta a contextos diferentes.</p>
+    </div>
+  </section>
+
+  <!-- 08 ─────────── MODELOS ─────────── -->
+  <section id="models">
+    <div class="sec-head">
+      <div class="label rv">Modelos de atuação</div>
+      <h2 class="rv" style="--i:1">Existe mais de uma porta.</h2>
+    </div>
+
+    <div class="models">
+      <div class="model rv"><span class="dot"></span><div><h3>Projeto sob medida</h3><p>Escopo definido, construção e operação.</p></div></div>
+      <div class="model rv" style="--i:1"><span class="dot"></span><div><h3>Produto em parceria</h3><p>Desenvolvimento conjunto, com divisão de retorno.</p></div></div>
+      <div class="model rv" style="--i:2"><span class="dot"></span><div><h3>Sistema interno</h3><p>Ferramenta proprietária para a operação própria.</p></div></div>
+      <div class="model rv" style="--i:3"><span class="dot"></span><div><h3>Produto do laboratório</h3><p>Desenvolvimento independente.</p></div></div>
+    </div>
+
+    <p class="closing rv" style="--i:4">A forma do negócio muda. A engenharia, não.</p>
+  </section>
+
+  <!-- 09 ─────────── FECHO ─────────── -->
+  <footer id="end">
+    <svg id="endMark" viewBox="0 0 100 125.84" fill="currentColor" aria-hidden="true"><path d="M5.62 51.46 L8.31 51.46 L11.01 52.59 L48.54 74.39 L50.11 74.83 L88.76 97.98 L91.68 97.53 L93.26 95.50 L93.26 87.86 L93.93 86.29 L95.73 85.17 L98.20 85.62 L99.56 87.20 L99.56 113.71 L97.76 117.08 L95.73 118.66 L92.81 119.55 L90.12 119.32 L87.19 117.98 L50.11 96.63 L14.39 74.39 L8.99 71.68 L7.19 72.59 L6.29 74.39 L6.29 102.70 L6.74 103.82 L8.31 105.17 L10.11 105.17 L24.49 95.96 L26.52 95.28 L28.76 95.28 L30.34 95.73 L39.56 101.57 L40.90 103.14 L41.13 106.07 L39.56 108.31 L9.67 125.39 L6.07 125.62 L2.92 124.27 L1.12 122.24 L0.00 119.10 L0.00 57.52 L1.35 54.16 L3.38 52.36 L5.39 51.68 L5.62 51.46 Z"/><path d="M91.01 0.00 L94.61 0.23 L97.08 1.57 L98.65 3.37 L99.77 6.97 L99.77 67.64 L98.20 71.68 L96.41 73.25 L93.93 74.16 L90.56 73.93 L88.76 73.04 L51.23 51.23 L49.66 50.79 L11.01 27.64 L8.31 27.86 L6.52 29.89 L6.07 38.87 L3.82 40.45 L2.47 40.45 L1.12 39.78 L0.00 37.75 L0.00 13.04 L1.58 8.99 L4.95 6.52 L6.74 6.07 L10.33 6.52 L49.66 28.99 L88.32 53.03 L89.67 53.71 L91.47 53.71 L93.26 51.91 L93.26 22.25 L91.91 20.68 L89.67 20.45 L88.76 20.90 L75.95 29.21 L73.03 30.34 L71.02 30.34 L68.99 29.66 L60.44 24.28 L58.66 22.02 L58.66 19.33 L60.44 17.08 L88.99 0.68 L90.79 0.23 L91.01 0.00 Z"/></svg>
+    <p class="nm rv" style="--i:2">Planee Lab IA</p>
+    <p class="label tg rv" style="--i:3">Laboratório de Software e IA</p>
+  </footer>
+
+</div>
 
 <script>
 (() => {
   "use strict";
-
-  const $  = (s, c = document) => c.querySelector(s);
-  const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
+  const $  = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
   const clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v;
-  const lerp  = (a, b, t) => a + (b - a) * t;
-  const ease  = t => 1 - Math.pow(1 - t, 3);
-  const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const ease  = t => t * t * (3 - 2 * t);
+  const win   = (p, a, b) => clamp((p - a) / (b - a));
+  const ANIM  = document.documentElement.classList.contains("anim");
 
-  /* a página é uma narrativa: recarregar no meio de uma cena não faz sentido.
-     Todo visitante começa no caos. */
-  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  const endMark = $("#endMark");
+  if (endMark) endMark.style.setProperty("--draw", ANIM ? "0" : "1");
 
-  /* progresso 0→1 de uma seção alta com filho sticky */
-  const sceneProgress = el => {
+  if (!ANIM) return;   /* sem animação: tudo já está no estado final */
+
+  /* ---------- revelação de entrada, só para texto ---------- */
+  const alvos = $$(".rv");
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    e.target.classList.add("in");
+    io.unobserve(e.target);
+  }), { threshold: .2, rootMargin: "0px 0px -8% 0px" });
+  alvos.forEach(el => io.observe(el));
+  addEventListener("load", () => setTimeout(() => alvos.forEach(el => {
     const r = el.getBoundingClientRect();
-    const span = r.height - window.innerHeight;
-    if (span <= 0) return clamp(1 - r.bottom / (window.innerHeight || 1));
-    return clamp(-r.top / span);
-  };
+    if (r.top < innerHeight && r.bottom > 0) el.classList.add("in");
+  }), 600));
 
-  /* ───────────────── 00 · caos ───────────────── */
-  const CHIPS = [
-    { t: "relatorio_final_v7_REVISADO.xlsx", m: 1, sx:.05, sy:.11, r:-4,   gx:.06, gy:.15 },
-    { t: "Aguardando aprovação", badge: "27", sx:.47, sy:.06, r: 3,        gx:.40, gy:.15 },
-    { t: "copiar → colar → conferir", m: 1, sx:.13, sy:.31, r: 2,          gx:.06, gy:.35 },
-    { t: "3.412 linhas · 1 pessoa", sx:.56, sy:.29, r:-2.5,                gx:.40, gy:.35 },
-    { t: "reenviar planilha (3ª vez)", m: 1, sx:.06, sy:.53, r: 3.5,       gx:.06, gy:.55 },
-    { t: "23h47 — ainda conferindo", sx:.45, sy:.51, r:-1.5,               gx:.40, gy:.55 },
-    { t: "“isso só o João sabe fazer”", sx:.19, sy:.72, r: 2,              gx:.06, gy:.75 },
-    { t: "Ctrl+C · Ctrl+V", m: 1, sx:.60, sy:.74, r:-3,                    gx:.40, gy:.75 }
-  ];
-
-  const chipHost = $("#chips");
-  const chips = CHIPS.map((c, i) => {
-    const wrap = document.createElement("div");
-    wrap.className = "chip-wrap";
-    const el = document.createElement("div");
-    el.className = "chip" + (c.m ? " m" : "");
-    el.style.animationDelay = (i * .55).toFixed(2) + "s";
-    el.innerHTML = c.badge
-      ? c.t + ' <span class="badge">' + c.badge + "</span>"
-      : c.t;
-    wrap.appendChild(el);
-    chipHost.appendChild(wrap);
-    return Object.assign({}, c, { el: wrap });
-  });
-
-  /* grade que emerge do caos */
-  const gridHost = $("#gridLines");
-  [.06, .40, .74].forEach(x => {
-    const i = document.createElement("i");
-    i.className = "v"; i.style.left = (x * 100) + "%";
-    gridHost.appendChild(i);
-  });
-  [.15, .35, .55, .75].forEach(y => {
-    const i = document.createElement("i");
-    i.className = "h"; i.style.top = (y * 100) + "%";
-    gridHost.appendChild(i);
-  });
-
-  const chaosEl  = $("#chaos");
-  const heroLns  = $$("#chaos .ln i");
-  const heroSub  = $("#heroSub");
-  const hintEl   = $("#hint");
-  const brandEl  = $("#brand");
-
-  let W = 0, H = 0, MOBILE = false, TRAVEL_IN = 260, TRAVEL_OUT = 260;
-  const measure = () => {
-    const s = $("#chaos .sticky");
-    W = s.clientWidth; H = s.clientHeight;
-    MOBILE = W < 760;
-
-    /* distâncias reais entre as colunas e o núcleo da fábrica */
-    const mid = el => { const r = el.getBoundingClientRect(); return r.left + r.width / 2; };
-    const core = mid($("#coreMark"));
-    TRAVEL_IN  = MOBILE ? 0 : Math.max(80, core - mid($("#colIn")));
-    TRAVEL_OUT = MOBILE ? 0 : Math.max(80, mid($("#colOut")) - core);
-  };
-
-  const renderChaos = p => {
-    chips.forEach((c, i) => {
-      const t  = ease(clamp((p - i * .018) / .46));
-      /* no mobile o caos se resolve numa coluna única — nada é cortado pela borda */
-      const sx = MOBILE ? c.sx * .30 : c.sx;
-      const gx = MOBILE ? .05 : c.gx;
-      const gy = MOBILE ? .15 + i * .15 : c.gy;
-      const x  = lerp(sx, gx, t) * W;
-      const y  = lerp(c.sy, gy, t) * H;
-      const rt = lerp(c.r, 0, t);
-      c.el.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px) rotate(" + rt.toFixed(2) + "deg)";
-      c.el.style.opacity = (1 - clamp((p - .40) / .20)).toFixed(3);
-    });
-
-    const gridIn  = clamp((p - .26) / .18);
-    const gridOut = clamp((p - .62) / .26);
-    gridHost.style.opacity = (gridIn * (1 - gridOut * .8)).toFixed(3);
-
-    heroLns.forEach((ln, i) => {
-      const t = ease(clamp((p - .50 - i * .045) / .28));
-      ln.style.transform = "translateY(" + ((1 - t) * 110).toFixed(2) + "%)";
-    });
-
-    heroSub.style.opacity = clamp((p - .76) / .18).toFixed(3);
-    hintEl.style.opacity  = (1 - clamp(p / .10)).toFixed(3);
-    brandEl.classList.toggle("show", p > .52);
-    document.body.classList.toggle("settled", p > .5);
-  };
-
-  /* ───────────────── 01 · manifesto ───────────────── */
-  const compileEl = $("#compile");
-  const GLYPHS = "▚▞░▒█/\\|<>=+-*#$%{}[]()01";
-  const source  = compileEl.dataset.text;
-  const charSpans = Array.from(source).map(ch => {
-    const s = document.createElement("span");
-    s.className = "ch";
-    s.dataset.c = ch;
-    s.dataset.r = ch === " " ? " " : GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
-    s.textContent = s.dataset.r;
-    s._on = false;
-    compileEl.appendChild(s);
-    return s;
-  });
-
-  const manifestoEl = $("#manifesto");
-  const beatEl = $("#beat");
-  const headEl = $("#compileHead");
-
-  const renderManifesto = p => {
-    const n = charSpans.length;
-    charSpans.forEach((s, i) => {
-      const on = p > .10 + (i / n) * .58;
-      if (on !== s._on) {
-        s._on = on;
-        s.textContent = on ? s.dataset.c : s.dataset.r;
-        s.classList.toggle("on", on);
-      }
-    });
-    headEl.style.opacity = (0.55 * (1 - clamp((p - .62) / .2))).toFixed(3);
-    const b = clamp((p - .74) / .2);
-    beatEl.style.opacity = b.toFixed(3);
-    beatEl.style.transform = "translateY(" + ((1 - ease(b)) * 14).toFixed(1) + "px)";
-  };
-
-  /* ───────────────── 02 · fábrica ───────────────── */
-  const factoryEl = $("#factory");
-  const inUnits   = $$("#colIn .unit");
-  const outUnits  = $$("#colOut .unit");
-  const coreMark  = $("#coreMark");
-  const coreCap   = $("#coreCap");
-  const CAPS = [
-    "fluxos que conectam sistemas que não se falam",
-    "software que lê, decide e executa nas suas regras",
-    "interfaces onde a operação inteira acontece",
-    "do protótipo ao produto em produção"
-  ];
-  let capIdx = -1;
-
-  const renderFactory = p => {
-    let pulse = 0, active = -1;
-
-    inUnits.forEach((el, i) => {
-      const l = clamp((p - .06 - i * .19) / .34);
-      const a = clamp(l / .55);
-      el.style.transform = "translateX(" + (ease(a) * TRAVEL_IN).toFixed(1) + "px)";
-      el.style.opacity = (1 - clamp((a - .5) / .5)).toFixed(3);
-
-      const b = clamp((l - .45) / .55);
-      const out = outUnits[i];
-      out.style.transform = "translateX(" + ((1 - ease(b)) * -TRAVEL_OUT).toFixed(1) + "px)";
-      out.style.opacity = clamp(b / .45).toFixed(3);
-
-      const bell = Math.exp(-Math.pow((l - .5) * 5, 2));
-      if (bell > pulse) { pulse = bell; active = i; }
-    });
-
-    coreMark.style.transform = "scale(" + (1 + pulse * .10).toFixed(3) + ")";
-    const show = pulse > .35 && p > .04 && p < .96;
-    if (show && active !== capIdx) { capIdx = active; coreCap.textContent = CAPS[active]; }
-    coreCap.classList.toggle("show", show);
-  };
-
-  /* ───────────────── 03 · anatomia ───────────────── */
-  const anatomyEl = $("#anatomy");
-  const layersEl  = $("#layers");
-  const layerEls  = $$("#layers .layer");
-  const anatomyFoot = $("#anatomyFoot");
-
-  const renderAnatomy = p => {
-    layerEls.forEach((el, i) => {
-      const t = ease(clamp((p - .10 - i * .09) / .26));
-      el.style.opacity = t.toFixed(3);
-      el.style.transform = "translateY(" + ((1 - t) * 18).toFixed(1) + "px)";
-    });
-    layersEl.classList.toggle("live", p > .66 && !REDUCED);
-    anatomyFoot.style.opacity = clamp((p - .72) / .18).toFixed(3);
-  };
-
-  /* ───────────────── 04 · a corrida ─────────────────
-     Única cena movida pelo tempo, não pelo scroll: a seção sobre
-     coisas que rodam sozinhas é a única que roda sozinha.        */
-  const raceEl   = $("#race");
-  const stepEls  = $$("#stepsManual li");
-  const autoEls  = [$("#autoTrigger"), $("#autoRun"), $("#autoDone")];
-  const tickMan  = $("#tickManual");
-  const tickAuto = $("#tickAuto");
-  const footMan  = $("#footManual");
-  const footAuto = $("#footAuto");
-
-  const DUR = [820, 820, 820, 820, 820, 1900, 820, 820, 820, 820, 820, 820];
-  const TIMES = [];
-  DUR.reduce((acc, d) => { const t = acc + d; TIMES.push(t); return t; }, 1100);
-  const AUTO_T = [400, 1000, 1600];
-  const CYCLE = TIMES[TIMES.length - 1] + 2800;
-  const N = stepEls.length;
-
-  let raceOn = false, raceT0 = 0, lastDone = -1, lastAuto = -1, lastFootA = "", lastFootM = "";
-
-  const renderRace = ms => {
-    const t = ms % CYCLE;
-    const done  = TIMES.filter(x => t >= x).length;
-    const aDone = AUTO_T.filter(x => t >= x).length;
-
-    if (done !== lastDone) {
-      lastDone = done;
-      stepEls.forEach((el, i) => {
-        el.classList.toggle("done", i < done);
-        el.classList.toggle("now",  i === done);
-      });
-      tickMan.textContent = done >= N ? N + " de " + N : (done + 1) + " de " + N;
-      const fm = done >= N ? N + " passos · 1 pessoa" : "em andamento";
-      if (fm !== lastFootM) { lastFootM = fm; footMan.textContent = fm; }
-    }
-
-    if (aDone !== lastAuto) {
-      lastAuto = aDone;
-      autoEls.forEach((el, i) => {
-        el.classList.toggle("seen", i < aDone);
-        el.classList.toggle("done", i < aDone);
-        el.classList.toggle("now",  i === aDone && aDone < autoEls.length);
-      });
-      tickAuto.textContent = aDone >= autoEls.length ? "1 de 1" : "iniciando";
-    }
-
-    /* a espera é medida nos passos do outro lado — nenhum tempo inventado */
-    const fa = aDone < autoEls.length ? "aguardando o gatilho"
-      : done >= N ? "1 execução · 0 pessoas"
-      : "ocioso há " + done + (done === 1 ? " passo" : " passos") + " do outro lado";
-    if (fa !== lastFootA) { lastFootA = fa; footAuto.textContent = fa; }
-  };
-
-  new IntersectionObserver(es => es.forEach(e => {
-    if (e.isIntersecting) { if (!raceOn) { raceOn = true; raceT0 = performance.now(); } }
-    else raceOn = false;
-  }), { threshold: .3 }).observe(raceEl);
-
-  /* ───────────────── 05 · assinatura ───────────────── */
-  const signEl   = $("#sign");
-  const signMark = $("#signMark");
-  const signName = $("#signName");
-  const signTag  = $("#signTag");
-  const signRts  = $("#signRights");
-  const marks    = $$("#signMark polyline");
-  marks.forEach(m => {
-    const len = m.getTotalLength();
-    m.style.strokeDasharray = len;
-    m.style.strokeDashoffset = len;
-    m._len = len;
-  });
-
-  const renderSign = p => {
-    marks.forEach((m, i) => {
-      const t = ease(clamp((p - .10 - i * .14) / .40));
-      m.style.strokeDashoffset = (m._len * (1 - t)).toFixed(2);
-    });
-    const a = clamp((p - .52) / .22);
-    signName.style.opacity = a.toFixed(3);
-    signName.style.transform = "translateY(" + ((1 - ease(a)) * 16).toFixed(1) + "px)";
-    const b = clamp((p - .66) / .2);
-    signTag.style.opacity = b.toFixed(3);
-    signTag.style.transform = "translateY(" + ((1 - ease(b)) * 12).toFixed(1) + "px)";
-    signRts.style.opacity = clamp((p - .82) / .15).toFixed(3);
-  };
-
-  /* ───────────────── cromo: trilho + leitor ───────────────── */
-  const railLive = $("#railLive");
-  const RAIL_LEN = 820;
-  railLive.style.strokeDasharray = RAIL_LEN;
-  const readout = $("#readout");
-  const STATES = [
-    [chaosEl,     "01 · CAOS"],
-    [manifestoEl, "03 · COMPILANDO"],
-    [factoryEl,   "05 · PROCESSANDO"],
-    [anatomyEl,   "06 · SISTEMA ATIVO"],
-    [raceEl,      "07 · EXECUTANDO"],
-    [$("#models"),"08 · ABERTO"],
-    [signEl,      "09 · PLANEE"]
-  ];
-  let lastState = "";
-
-  const renderChrome = () => {
-    const doc = document.documentElement;
-    const total = doc.scrollHeight - window.innerHeight;
-    const p = total > 0 ? clamp(window.scrollY / total) : 0;
-    railLive.style.strokeDashoffset = (RAIL_LEN * (1 - p)).toFixed(1);
-
-    const mid = window.innerHeight / 2;
-    let label = STATES[0][1];
-    for (const [el, txt] of STATES) {
-      const r = el.getBoundingClientRect();
-      if (r.top <= mid && r.bottom >= mid) { label = txt; break; }
-    }
-    // durante o caos, o leitor acompanha a organização
-    if (label === "01 · CAOS") {
-      const cp = sceneProgress(chaosEl);
-      label = cp > .62 ? "02 · ORDEM" : cp > .22 ? "02 · ALINHANDO" : "01 · CAOS";
-    }
-    if (label !== lastState) { lastState = label; readout.textContent = label; }
-  };
-
-  /* ───────────────── inversão de fundo ───────────────── */
-  const darkZone = [factoryEl, anatomyEl, raceEl];
-  const updateTheme = () => {
-    const mid = window.innerHeight / 2;
-    const dark = darkZone.some(el => {
-      const r = el.getBoundingClientRect();
-      return r.top <= mid && r.bottom >= mid;
-    });
-    document.body.classList.toggle("is-dark", dark);
-  };
-
-  /* ───────────────── revelações simples ───────────────── */
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
-  }, { threshold: .25 });
-  $$("#models .model, #modelsFoot").forEach((el, i) => {
-    el.style.transitionDelay = (i * .08).toFixed(2) + "s";
-    io.observe(el);
-  });
-
-  /* ───────────────── loop ───────────────── */
-  const smooth = { chaos: 0, man: 0, fac: 0, ana: 0, sig: 0 };
-  const targets = () => ({
-    chaos: sceneProgress(chaosEl),
-    man:   sceneProgress(manifestoEl),
-    fac:   sceneProgress(factoryEl),
-    ana:   sceneProgress(anatomyEl),
-    sig:   sceneProgress(signEl)
-  });
-  const near = (el, m = 1.2) => {
+  /* ---------- motor de scroll ----------
+     prog(el) = 0 quando o topo do elemento encosta na base da tela,
+                1 quando a base dele sai pelo topo. */
+  const prog = el => {
     const r = el.getBoundingClientRect();
-    const h = window.innerHeight * m;
-    return r.bottom > -h && r.top < h;
+    return clamp((innerHeight - r.top) / (innerHeight + r.height));
+  };
+  /* o hero começa no topo da página: medir passagem pela tela daria
+     progresso já adiantado no carregamento. Aqui 0 é o topo, de fato. */
+  const progFromTop = el => clamp(scrollY / (el.offsetHeight || 1));
+  /* o rodapé é o último elemento e nunca atravessa a tela inteira: se a
+     medida fosse a passagem dele, o traço só desenharia nos últimos pixels.
+     A zona começa meia tela antes e termina exatamente no fim do documento. */
+  const progEnd = el => {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    const zone = Math.min(max, el.offsetHeight + innerHeight * .45) || 1;
+    return clamp((scrollY - (max - zone)) / zone);
+  };
+  const setVar = (el, k, v) => el && el.style.setProperty(k, v);
+
+  const hero = $("#hero"), heroRule = $("#heroRule"),
+        heroTitle = $("#heroTitle"), heroLead = $("#heroLead"), heroMark = $("#heroMark");
+  const factsRow = $(".facts"), nums = $$(".big[data-to]");
+  const areas = $("#areas"), cells = $$(".cell");
+  const prin = $("#prin"), principles = $$(".principle");
+  const flow = $("#flow"), flowLine = $("#flowLine"), steps = $$(".step");
+  const tech = $("#tech"), piles = $$(".pile");
+  const about = $("#about"), watermark = $("#watermark");
+  const modelsSec = $("#models"), dots = $$(".model .dot");
+  const endSec = $("#end");
+  const bar = $("#progress"), top = $("#topbar");
+
+  /* Se a página não tem o que rolar — janela mais alta que o conteúdo, ou
+     incorporada num quadro esticado até a altura total, como acontece em
+     visualizadores de preview — nada nunca sairia do estado inicial: números
+     em zero, linhas por desenhar, marca invisível. Nesse caso, estado final. */
+  const semRolagem = () => (document.documentElement.scrollHeight - innerHeight) < 8;
+
+  let travado = false;
+  const render = () => {
+    if (semRolagem()) { if (!travado) { travado = true; renderFinal(); } return; }
+    travado = false;
+    /* 01 · hero: título e marca sobem em ritmo próprio, a linha se estende */
+    const ph = progFromTop(hero);
+    setVar(heroRule, "--w", ease(win(ph, .05, .70)).toFixed(3));
+    const lift = win(ph, .25, 1) * 44;
+    heroTitle.style.transform = "translateY(" + (-lift).toFixed(1) + "px)";
+    heroLead.style.transform  = "translateY(" + (-lift * .6).toFixed(1) + "px)";
+    heroMark.style.transform  = "translateY(" + (-lift * 1.25).toFixed(1) + "px)";
+
+    /* 02 · cenário: os números contam amarrados à rolagem, e voltam ao subir.
+       A referência é a própria linha de números, não a seção inteira. */
+    const ps = ease(win(prog(factsRow), .22, .52));
+    nums.forEach(el => {
+      const v = Math.round(+el.dataset.to * ps);
+      const txt = (el.dataset.prefix || "") + v + (el.dataset.suffix || "");
+      if (el.textContent !== txt) el.textContent = txt;
+    });
+
+    /* 03 · atuação: colunas em parallax oposto */
+    const pa = (prog(areas) - .5) * 2;
+    cells.forEach((el, i) => setVar(el, "--py", (pa * (i % 2 ? 9 : -9)).toFixed(1) + "px"));
+
+    /* 04 · princípios: a espinha se desenha e acende cada número na passagem */
+    const pp = win(prog(prin), .22, .78);
+    principles.forEach((el, i) => {
+      const local = clamp(pp * principles.length - i);
+      setVar(el.querySelector(".n"), "--fill", ease(local).toFixed(3));
+      el.classList.toggle("lit", local > .05);
+    });
+
+    /* 05 · metodologia: a linha atravessa e cada marcador preenche */
+    const pf = win(prog(flow), .18, .72);
+    setVar(flowLine, "--w", ease(pf).toFixed(3));
+    steps.forEach((el, i) => el.classList.toggle("lit", pf > (i + .35) / steps.length));
+
+    /* 06 · tecnologia: colunas sobem em velocidades distintas */
+    const pt = (prog(tech) - .5) * 2;
+    piles.forEach((el, i) => setVar(el, "--py", (pt * (-6 - i * 4)).toFixed(1) + "px"));
+
+    /* 07 · empresa: marca-d'água em parallax lento */
+    setVar(watermark, "--py", ((prog(about) - .5) * 2 * -46).toFixed(1) + "px");
+
+    /* 08 · modelos: os pontos crescem na entrada */
+    const pm = win(prog(modelsSec), .25, .6);
+    dots.forEach((el, i) => setVar(el, "--s", (.4 + .6 * ease(clamp(pm * 4 - i * .5))).toFixed(3)));
+
+    /* 09 · fecho: a marca é revelada pela rolagem e fecha no fim da página */
+    setVar(endMark, "--draw", ease(win(progEnd(endSec), .12, .96)).toFixed(3));
+
+    /* cromo */
+    const total = document.documentElement.scrollHeight - innerHeight;
+    bar.style.transform = "scaleX(" + (total > 0 ? clamp(scrollY / total) : 0).toFixed(4) + ")";
+    top.classList.toggle("on", scrollY > hero.offsetHeight * .7);
   };
 
-  /* desenha o estado atual — não depende de rAF, então a página
-     nunca aparece quebrada antes do primeiro frame */
-  const paint = () => {
-    if (near(chaosEl))     renderChaos(smooth.chaos);
-    if (near(manifestoEl)) renderManifesto(smooth.man);
-    if (near(factoryEl))   renderFactory(smooth.fac);
-    if (near(anatomyEl))   renderAnatomy(smooth.ana);
-    if (near(signEl))      renderSign(smooth.sig);
-    renderChrome();
-    updateTheme();
+  /* estado final: tudo desenhado, contado e aceso */
+  const renderFinal = () => {
+    setVar(heroRule, "--w", "1");
+    heroTitle.style.transform = heroLead.style.transform = heroMark.style.transform = "none";
+    nums.forEach(el => {
+      const txt = (el.dataset.prefix || "") + el.dataset.to + (el.dataset.suffix || "");
+      if (el.textContent !== txt) el.textContent = txt;
+    });
+    cells.forEach(el => setVar(el, "--py", "0px"));
+    principles.forEach(el => { setVar(el.querySelector(".n"), "--fill", "1"); el.classList.add("lit"); });
+    setVar(flowLine, "--w", "1");
+    steps.forEach(el => el.classList.add("lit"));
+    piles.forEach(el => setVar(el, "--py", "0px"));
+    setVar(watermark, "--py", "0px");
+    dots.forEach(el => setVar(el, "--s", "1"));
+    setVar(endMark, "--draw", "1");
+    alvos.forEach(el => el.classList.add("in"));
+    bar.style.transform = "scaleX(0)";
   };
 
-  let lastFrameAt = 0;
-  const frame = ts => {
-    lastFrameAt = ts || performance.now();
-    const t = targets();
-    const k = REDUCED ? 1 : .16;
-    for (const key in smooth) smooth[key] = lerp(smooth[key], t[key], k);
-    paint();
-    if (raceOn) renderRace(lastFrameAt - raceT0);
-    requestAnimationFrame(frame);
-  };
+  /* um único laço: render só desenha, frame é quem reagenda */
+  let last = 0;
+  const frame = ts => { last = ts || performance.now(); render(); requestAnimationFrame(frame); };
+  render();
+  requestAnimationFrame(frame);
 
-  let running = false;
-  const boot = () => {
-    measure();
-    if (REDUCED) {
-      /* sem movimento: cada cena fica no estado final e o loop nunca roda */
-      for (const key in smooth) smooth[key] = 1;
-      renderChaos(1); renderManifesto(1); renderFactory(1);
-      renderAnatomy(1); renderSign(1);
-      renderRace(TIMES[TIMES.length - 1] + 500);   /* corrida já concluída, sem loop */
-      renderChrome(); updateTheme();
-      return;
-    }
-    Object.assign(smooth, targets());          /* nunca “corre atrás” do scroll inicial */
-    paint();
-    if (!running) { running = true; requestAnimationFrame(frame); }
-  };
-
-  boot();                                      /* o script está no fim do body: tudo já existe */
-  window.addEventListener("load", boot);       /* remede depois que a fonte carrega */
-  window.addEventListener("pageshow", boot);   /* volta do cache do navegador */
-  window.addEventListener("resize", boot, { passive: true });
-  window.addEventListener("orientationchange", boot);
   /* se o rAF estiver suspenso, o scroll ainda mantém a página coerente */
-  window.addEventListener("scroll", () => {
-    if (performance.now() - lastFrameAt > 250) { Object.assign(smooth, targets()); paint(); }
+  addEventListener("scroll", () => {
+    if (performance.now() - last > 250) render();
   }, { passive: true });
+  addEventListener("resize", render, { passive: true });
 })();
 </script>
 
+
 </body>
 </html>
+

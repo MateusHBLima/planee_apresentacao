@@ -1,58 +1,73 @@
-# Planee Lab IA — site de apresentação
+# Planee Lab IA — site institucional
 
-Página única de apresentação da empresa. **Não é uma página de captação:** não tem formulário,
-botão de contato nem redes sociais. O objetivo é a impressão que fica em quem abre o link
-depois de uma conversa, indicação ou reunião.
+Página única de apresentação da empresa. **Não é uma página de captação:** não tem
+formulário, botão de contato nem redes sociais. O objetivo é a impressão que fica em
+quem abre o link depois de uma conversa, indicação ou reunião.
 
 ## Como ver
 
-Abra o arquivo `index.html` no navegador — é só dar duplo clique. Não precisa de servidor,
-instalação nem internet (a única coisa que vem de fora é a fonte).
+Abra `index.html` no navegador — duplo clique basta. Não precisa de servidor nem de
+instalação. A única coisa que vem de fora é a fonte Satoshi.
 
-Se preferir servir localmente:
+Para servir localmente:
 
 ```bash
 python -m http.server 8123
 ```
 
-E acesse `http://localhost:8123`.
+## Estrutura
 
-## O que observar
+Nove blocos, na ordem canônica de sites institucionais de tecnologia, extraída da
+análise de cinco referências do setor (Tryolabs, Ateliware, Objective, Zup, Codeminer42):
 
-O site é uma narrativa em sete cenas, contada pela rolagem. Vale rolar **devagar**:
-quase tudo está amarrado à posição do scroll, então rolar rápido passa por cima das transições.
+| # | Bloco | Função |
+|---|-------|--------|
+| 01 | Autodefinição | O que a empresa é, em uma frase |
+| 02 | O cenário | Ocupa a posição que nas referências é de prova social |
+| 03 | Áreas de atuação | As quatro frentes |
+| 04 | Princípios de engenharia | Autoridade por critério |
+| 05 | Metodologia | Do diagnóstico à operação |
+| 06 | Tecnologia | O que sustenta as entregas |
+| 07 | A empresa | Por que laboratório |
+| 08 | Modelos de atuação | Ocupa a posição do contato |
+| 09 | Encerramento | Marca |
 
-| # | Cena | O que acontece |
-|---|------|----------------|
-| 1 | Caos → ordem | Fragmentos do trabalho manual se alinham numa grade e o título emerge |
-| 2 | Manifesto | O texto compila caractere a caractere, de código para frase |
-| 3 | A fábrica | Itens crus atravessam o símbolo da Planee e saem como produtos |
-| 4 | Anatomia | As cinco camadas de todo sistema, com o dado percorrendo a pilha |
-| 5 | A corrida | A mesma tarefa, manual e automatizada, lado a lado |
-| 6 | Modelos de trabalho | As formas de nos envolvermos num projeto |
-| 7 | Assinatura | A logo se desenha e fecha o ciclo |
+Como não há clientes citáveis nem métricas próprias divulgáveis, o bloco 02 usa dados
+públicos de mercado — Asana, McKinsey e Gartner — com a fonte visível na página. Eles
+montam o problema; os princípios do bloco 04 são a resposta.
 
-A **cena 5 é a única que roda sozinha**, no tempo dela, sem depender da rolagem — a seção
-sobre coisas que funcionam sem você é a única que funciona sem você. Ao chegar nela,
-pare e assista por uns 15 segundos até o ciclo completar.
+## Design
 
-## O que ainda não está fechado
+Preto sobre dourado sobre a tipografia Satoshi. O dourado (`#C9A227`) aparece **apenas
+onde a página indica estado ativo**: barra de progresso, linha da metodologia, marcadores
+acesos, espinha dos princípios, filete do card sob o cursor e as fontes dos dados. Títulos,
+texto e números permanecem em branco-osso — se tudo recebe cor, nada é destacado.
 
-- **Os textos são propostas**, não versão final — inclusive os doze passos da cena da corrida.
-  Se o público-alvo não fecha relatório mensal, essa tarefa deve ser trocada por algo que ele
-  reconheça no próprio dia a dia.
-- **O símbolo da logo é uma aproximação** desenhada em SVG a partir da imagem da marca.
-  Precisa ser substituído pelo arquivo oficial (aparece em quatro lugares).
-- **A fonte Satoshi** carrega do Fontshare. Hospedá-la junto com o site deixaria mais rápido
-  e removeria a última dependência externa.
+A base é preta por necessidade técnica, não só estética: esse dourado sobre branco fica em
+2,4:1, abaixo do mínimo legível. Sobre preto, 8,3:1.
+
+## Movimento
+
+Texto revela na entrada. **A estrutura é amarrada à rolagem** — avança e retrocede com o
+dedo: os números contam e descontam, a espinha dos princípios se desenha, a linha da
+metodologia atravessa acendendo cada etapa, as colunas deslizam em parallax e a marca do
+rodapé é revelada até fechar exatamente no fim da página.
+
+Com `prefers-reduced-motion` ativo, ou quando não há rolagem possível (janela mais alta que
+o conteúdo, ou a página dentro de um quadro esticado), tudo vai direto ao estado final.
+
+## A marca
+
+`planee-marca.svg` foi vetorizado a partir do PNG original por traçado de contorno, com
+98,65% de sobreposição contra a máscara de origem. Proporção 100 × 125,84. Usa
+`fill="currentColor"`, então herda a cor do CSS — é assim que ela aparece clara na barra e
+dourada na marca-d'água.
 
 ## Detalhes técnicos
 
-Arquivo único, ~40 KB, sem nenhuma biblioteca. As animações são escritas à mão em JavaScript:
-o progresso de cada cena vem de `getBoundingClientRect`, suavizado por interpolação dentro de um
-`requestAnimationFrame`, e a fixação das seções usa `position: sticky` nativo. Sem GSAP, sem
-Lenis, sem build, sem dependências para instalar.
+Arquivo único, ~33 KB, sem nenhuma biblioteca. Animações em JavaScript puro: progresso por
+`getBoundingClientRect` dentro de um `requestAnimationFrame`, revelações por
+`IntersectionObserver`. Sem build, sem dependências para instalar.
 
-Funciona em telas a partir de 360 px de largura, respeita `prefers-reduced-motion`
-(as animações desligam e a página vira estática) e todos os textos passam no contraste mínimo
-de acessibilidade nos dois temas.
+Responsivo a partir de 360 px. Contraste conferido: texto principal 17,9:1, apoio 6,2:1,
+dourado 8,3:1 — todos acima do mínimo de acessibilidade.
